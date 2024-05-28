@@ -30,6 +30,7 @@ void free_image_gray(ImageGray *image); // Rita de Cássia
 ImageRGB *create_image_rgb(int largura, int altura); // Daniel
 void free_image_rgb(ImageRGB *image); // Daniel
 
+// dskhdfiuhdfsifehu
 // Operações para ImageGray
 ImageGray *flip_vertical_gray(ImageGray *image);
 ImageGray *flip_horizontal_gray(ImageGray *image);
