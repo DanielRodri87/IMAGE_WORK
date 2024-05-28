@@ -24,19 +24,11 @@ typedef struct imageRGB {
 } ImageRGB;
 
 // Funções de criação e liberação
-<<<<<<< HEAD
 ImageGray *create_image_gray(int largura, int altura); // Pedro Henrique
 void free_image_gray(ImageGray *image); // Rita de Cássia
 
 ImageRGB *create_image_rgb(int largura, int altura); // Daniel
 void free_image_rgb(ImageRGB *image); // Daniel
-=======
-ImageGray *create_image_gray(int largura, int altura);
-void free_image_gray(ImageGray *image);
-
-ImageRGB *create_image_rgb(int largura, int altura);
-void free_image_rgb(ImageRGB *image);
->>>>>>> by_daniel
 
 // Operações para ImageGray
 ImageGray *flip_vertical_gray(ImageGray *image);
