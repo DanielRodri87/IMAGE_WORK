@@ -48,3 +48,5 @@ void free_image_gray(ImageGray *image) {
         free(image);
     }
 }
+
+// testando....
