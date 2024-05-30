@@ -39,6 +39,17 @@ ImageGray *create_image_gray(int largura, int altura) {
     }
     return image;
 }
+// libera o ponteiro pixels(caso n seja nulo) e libera a memória alocada para a estrutura  
+void free_image_gray(ImageGray *image) {
+    if (image) {
+        if (image->pixels) {
+            free(image->pixels);
+        }
+        free(image);
+    }
+}
+
+// testando....
 
 
 ImageRGB *create_image_rgb(int largura, int altura)
