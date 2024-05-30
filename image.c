@@ -3,24 +3,31 @@
 #include <stdlib.h>
 
 // funcão que converte a RBG pra Gray (basicamente a mesma coisa, so muda pra se adequar nas definições da nova lista.h)
-ImageGray *converter_para_gray(const ImageRGB *img) {
-    // faz a alocacao em cinza
-    ImageGray *imgray = create_image_gray(img->dim.largura, img->dim.altura);
 
-    // percorre todos os pixels
-    for (int i = 0; i < img->dim.altura; i++) {
-        for (int j = 0; j < img->dim.largura; j++) {
-            // calc indice dos pixels
-            int index = i * img->dim.largura + j;
-            // media dos canais para converter pra cinza
-            int gray = (img->pixels[index].red + img->pixels[index].green + img->pixels[index].blue) / 3;
-            //da o valor de cinza ao pixel 
-            imgray->pixels[index].value = gray;
+void alocarGray(int altura, int largura, PixelGray **pixel)
+{
+    *pixel = (PixelGray *)calloc(sizeof(PixelGray), altura * largura);
+}
+
+ImageGray *converter_para_gray(ImageRGB *img, ImageGray *imgray)
+{
+    imgray->dim.altura = img->dim.altura;
+    imgray->dim.largura = img->dim.largura;
+
+    alocarGray(imgray->dim.altura, imgray->dim.largura, &(imgray->pixels));
+
+    for (int i = 0; i < img->dim.altura; i++)
+    {
+        for (int j = 0; j < img->dim.largura; j++)
+        {
+
+            int gray = (img->pixels[i * img->dim.largura + j].red + img->pixels[i * img->dim.largura + j].green + img->pixels[i * img->dim.largura + j].blue) / 3;
+
+            imgray->pixels[i * img->dim.largura + j].value = gray;
         }
     }
-
-    return imgray;
 }
+
 
 // cria a imagemgray, basicamente a mesma coisa tambem 
 ImageGray *create_image_gray(int largura, int altura) {
@@ -54,26 +61,70 @@ void free_image_gray(ImageGray *image) {
 
 ImageRGB *create_image_rgb(int largura, int altura)
 {
-    ImageRGB *image = (ImageRGB *)malloc(sizeof(ImageRGB));
-    if (!image)
-    {
-        fprintf(stderr, "Erro ao alocar memoria para imagem em RGB.\n");
-        exit(1);
-    }
-    image->dim.largura = largura;
-    image->dim.altura = altura;
-    image->pixels = (PixelRGB *)malloc(largura * altura * sizeof(PixelRGB));
-    if (!image->pixels)
-    {
-        fprintf(stderr, "Erro ao alocar memoria para os pixels da imagem em RGB.\n");
-        free(image);
-        exit(1);
-    }
-    return image;
+    ImageRGB *img = calloc(1, sizeof(ImageRGB));
+    img->dim.altura = altura;
+    img->dim.largura = largura;
+    img->pixels = calloc(altura * largura, sizeof(PixelRGB));
+    return img;
 }
+
+void ler_imagem_arkv(FILE *arq, ImageRGB *img)
+{
+    fscanf(arq, "%d", &img->dim.altura);
+    fscanf(arq, "%d", &img->dim.largura);
+    img->pixels = (PixelRGB *)calloc(sizeof(PixelRGB), img->dim.altura * img->dim.largura);
+    for (int i = 0; i < img->dim.altura; i++)
+    {
+        for (int x = 0; x < img->dim.largura; x++)
+        {
+            fscanf(arq, "%d %d %d,", &img->pixels[(i * img->dim.largura) + x].red, &img->pixels[(i * img->dim.largura) + x].green, &img->pixels[(i * img->dim.largura) + x].blue);
+        }
+    }
+    fclose(arq);
+}
+
 
 void free_image_rgb(ImageRGB *image)
 {
     free(image->pixels);
     free(image);
+}
+
+
+ImageGray *flip_vertical_gray(ImageGray *image) {
+    if (image == NULL || image->pixels == NULL) {
+        return NULL;
+    }
+
+    int largura = image->dim.largura;
+    int altura = image->dim.altura;
+
+    ImageGray *flipped_image = create_image_gray(largura, altura);
+    if (flipped_image == NULL) {
+        return NULL;
+    }
+
+    for (int y = 0; y < altura; y++) {
+        for (int x = 0; x < largura; x++) {
+            flipped_image->pixels[(altura - y - 1) * largura + x] = image->pixels[y * largura + x];
+        }
+    }
+
+    return flipped_image;
+}
+
+
+void printPixelColor(int lin, int col, ImageRGB *img)
+{
+    printf("\033[38;2;%d;%d;%dm**\033[0m", img->pixels[lin * img->dim.largura + col].red, img->pixels[lin * img->dim.largura + col].green, img->pixels[lin * img->dim.largura + col].blue);
+}
+
+void printImageColor(ImageRGB *img)
+{
+    for (int i = 0; i < img->dim.altura; i++) {
+        for (int j = 0; j < img->dim.largura; j++) {
+            printPixelColor(i, j, img);
+        }
+        printf("\n");
+    }
 }
