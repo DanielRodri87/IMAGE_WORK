@@ -50,3 +50,30 @@ void free_image_gray(ImageGray *image) {
 }
 
 // testando....
+
+
+ImageRGB *create_image_rgb(int largura, int altura)
+{
+    ImageRGB *image = (ImageRGB *)malloc(sizeof(ImageRGB));
+    if (!image)
+    {
+        fprintf(stderr, "Erro ao alocar memoria para imagem em RGB.\n");
+        exit(1);
+    }
+    image->dim.largura = largura;
+    image->dim.altura = altura;
+    image->pixels = (PixelRGB *)malloc(largura * altura * sizeof(PixelRGB));
+    if (!image->pixels)
+    {
+        fprintf(stderr, "Erro ao alocar memoria para os pixels da imagem em RGB.\n");
+        free(image);
+        exit(1);
+    }
+    return image;
+}
+
+void free_image_rgb(ImageRGB *image)
+{
+    free(image->pixels);
+    free(image);
+}
