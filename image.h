@@ -34,12 +34,12 @@ void free_image_rgb(ImageRGB *image); // Daniel
 // Operações para ImageGray
 ImageGray *flip_vertical_gray(ImageGray *image);
 ImageGray *flip_horizontal_gray(ImageGray *image);
-ImageGray *transpose(const ImageGray *image);
+ImageGray *transpose_gray(const ImageGray *image);
 
 // Operações para ImageRGB
 ImageRGB *flip_vertical_rgb(const ImageRGB *image);
 ImageRGB *flip_horizontal_rgb(const ImageRGB *image);
-ImageRGB *transpose(const ImageRGB *image);
+ImageRGB *transpose_rgb(const ImageRGB *image);
 
 // Manipulação por pixel para ImageGray
 ImageGray *clahe_gray(const ImageGray *image, int tile_width, int tile_height);
