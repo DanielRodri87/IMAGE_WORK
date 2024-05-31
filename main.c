@@ -12,11 +12,14 @@ int main() {
 
     ImageGray imgray;
     ImageRGB imrgb;
+    ImageGray flip_gray;
 
     system("pause");
 
     ler_imagem_arkv(arq, &imrgb);
     printImageColor(&imrgb);
+    printf("\n\n\n");
+
     
     converter_para_gray(&imrgb, &imgray);
 
@@ -27,9 +30,27 @@ int main() {
     GrayExample = fopen("utils/example_GRAY.txt", "r");
     ler_imagem_arkv(GrayExample, &imrgb);
     printImageColor(&imrgb);
+    printf("\n\n\n");
+
+    // Inicializa flip_gray
+    flip_gray.dim.altura = imgray.dim.altura;
+    flip_gray.dim.largura = imgray.dim.largura;
+    alocarGray(flip_gray.dim.altura, flip_gray.dim.largura, &(flip_gray.pixels));
+
+    // Chama a função ajustada
+    flip_vertical_gray(&imgray, &flip_gray);
+
+    FILE *GrayFlip;
+    GrayFlip = fopen("utils/flip_GRAY.txt", "w");
+    salvar_imagem_arkv(&flip_gray, GrayFlip);
+
+    GrayFlip = fopen("utils/flip_GRAY.txt", "r");
+    ler_imagem_arkv(GrayFlip, &imrgb);
+    printImageColor(&imrgb);
 
     free_image_gray(&imgray);
     free_image_rgb(&imrgb);
+    free_image_gray(&flip_gray);
 
     return 0;
 }

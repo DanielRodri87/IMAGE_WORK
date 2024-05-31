@@ -40,7 +40,7 @@ ImageRGB *create_image_rgb(int largura, int altura); // Daniel           | Ok
 void free_image_rgb(ImageRGB *image); // Daniel                          | Ok
 
 // Operações para ImageGray
-ImageGray *flip_vertical_gray(ImageGray *image); // Daniel
+void flip_vertical_gray(ImageGray *image, ImageGray *flipped_image); // Daniel
 ImageGray *flip_horizontal_gray(ImageGray *image); // Pedro Henrique
 ImageGray *transpose_gray(const ImageGray *image); // Rita
 
