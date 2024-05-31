@@ -26,6 +26,10 @@ typedef struct imageRGB {
     PixelRGB *pixels;
 } ImageRGB;
 
+
+
+void salvar_imagem_arkv(ImageGray *img, FILE *gray_image); // Ok
+
 // Funções de criação e liberação
 void alocarGray(int altura, int largura, PixelGray **pixel); //Ok
 ImageGray *create_image_gray(int largura, int altura); // Ok
