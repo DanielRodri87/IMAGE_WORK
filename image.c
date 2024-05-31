@@ -2,13 +2,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// funcão que converte a RBG pra Gray (basicamente a mesma coisa, so muda pra se adequar nas definições da nova lista.h)
+
+void salvar_imagem_arkv(ImageGray *img, FILE *gray_image)
+{
+    fprintf(gray_image, "%d\n", img->dim.altura);
+    fprintf(gray_image, "%d\n", img->dim.largura);
+
+    for (int i = 0; i < img->dim.altura; i++)
+    {
+        for (int x = 0; x < img->dim.largura; x++)
+        {
+            fprintf(gray_image, "%d %d %d,", img->pixels[(i * img->dim.largura) + x].value, img->pixels[(i * img->dim.largura) + x].value, img->pixels[(i * img->dim.largura) + x].value);
+        }
+        fprintf(gray_image, "\n");
+    }
+
+    fclose(gray_image);
+}
+
+
 
 void alocarGray(int altura, int largura, PixelGray **pixel)
 {
     *pixel = (PixelGray *)calloc(sizeof(PixelGray), altura * largura);
 }
 
+
+// funcão que converte a RBG pra Gray (basicamente a mesma coisa, so muda pra se adequar nas definições da nova lista.h)
 ImageGray *converter_para_gray(ImageRGB *img, ImageGray *imgray)
 {
     imgray->dim.altura = img->dim.altura;

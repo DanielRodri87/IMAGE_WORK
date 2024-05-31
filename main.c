@@ -10,19 +10,26 @@ int main() {
         return 1;
     }
 
-    ImageGray *imgray;
-    ImageRGB *imrgb;
+    ImageGray imgray;
+    ImageRGB imrgb;
 
-    ler_imagem_arkv(arq, imrgb);
-    
-    printImageColor(imrgb);
-    
-    // imgray = converter_para_gray(imrgb, imgray);
-    
-    // printImageGray(imgray);
+    system("pause");
 
-    free_image_gray(imgray);
-    free_image_rgb(imrgb);
+    ler_imagem_arkv(arq, &imrgb);
+    printImageColor(&imrgb);
+    
+    converter_para_gray(&imrgb, &imgray);
+
+    FILE *GrayExample;
+    GrayExample = fopen("utils/example_GRAY.txt", "w");
+    salvar_imagem_arkv(&imgray, GrayExample);
+
+    GrayExample = fopen("utils/example_GRAY.txt", "r");
+    ler_imagem_arkv(GrayExample, &imrgb);
+    printImageColor(&imrgb);
+
+    free_image_gray(&imgray);
+    free_image_rgb(&imrgb);
 
     return 0;
 }
