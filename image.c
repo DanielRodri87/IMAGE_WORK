@@ -111,26 +111,29 @@ void free_image_rgb(ImageRGB *image)
 }
 
 
-ImageGray *flip_vertical_gray(ImageGray *image) {
-    if (image == NULL || image->pixels == NULL) {
-        return NULL;
+void flip_vertical_gray(ImageGray *image, ImageGray *flipped_image)
+{
+    if (image == NULL || image->pixels == NULL || flipped_image == NULL)
+    {
+        fprintf(stderr, "Erro: Uma das imagens é NULL.\n");
+        return;
     }
 
     int largura = image->dim.largura;
     int altura = image->dim.altura;
 
-    ImageGray *flipped_image = create_image_gray(largura, altura);
-    if (flipped_image == NULL) {
-        return NULL;
-    }
+    flipped_image->dim.largura = largura;
+    flipped_image->dim.altura = altura;
 
-    for (int y = 0; y < altura; y++) {
-        for (int x = 0; x < largura; x++) {
+    alocarGray(altura, largura, &(flipped_image->pixels));
+
+    for (int y = 0; y < altura; y++)
+    {
+        for (int x = 0; x < largura; x++)
+        {
             flipped_image->pixels[(altura - y - 1) * largura + x] = image->pixels[y * largura + x];
         }
     }
-
-    return flipped_image;
 }
 
 
