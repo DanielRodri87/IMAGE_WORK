@@ -20,11 +20,33 @@ void salvar_imagem_arkv(ImageGray *img, FILE *gray_image)
     fclose(gray_image);
 }
 
+void salvar_imagem_arkv_rgb(ImageRGB *img, FILE *rgb_image)
+{
+    fprintf(rgb_image, "%d\n", img->dim.altura);
+    fprintf(rgb_image, "%d\n", img->dim.largura);
+
+    for (int i = 0; i < img->dim.altura; i++)
+    {
+        for (int x = 0; x < img->dim.largura; x++)
+        {
+            fprintf(rgb_image, "%d %d %d,", img->pixels[(i * img->dim.largura) + x].red, img->pixels[(i * img->dim.largura) + x].green, img->pixels[(i * img->dim.largura) + x].blue);
+        }
+        fprintf(rgb_image, "\n");
+    }
+
+    fclose(rgb_image);
+}
+
 
 
 void alocarGray(int altura, int largura, PixelGray **pixel)
 {
     *pixel = (PixelGray *)calloc(sizeof(PixelGray), altura * largura);
+}
+
+void alocarRGB(int altura, int largura, PixelRGB **pixel)
+{
+    *pixel = (PixelRGB *)calloc(sizeof(PixelRGB), altura * largura);
 }
 
 
@@ -126,6 +148,31 @@ void flip_vertical_gray(ImageGray *image, ImageGray *flipped_image)
     flipped_image->dim.altura = altura;
 
     alocarGray(altura, largura, &(flipped_image->pixels));
+
+    for (int y = 0; y < altura; y++)
+    {
+        for (int x = 0; x < largura; x++)
+        {
+            flipped_image->pixels[(altura - y - 1) * largura + x] = image->pixels[y * largura + x];
+        }
+    }
+}
+
+void flip_vertical_rgb(ImageRGB *image, ImageRGB *flipped_image)
+{
+    if (image == NULL || image->pixels == NULL || flipped_image == NULL)
+    {
+        fprintf(stderr, "Erro: Uma das imagens é NULL.\n");
+        return;
+    }
+
+    int largura = image->dim.largura;
+    int altura = image->dim.altura;
+
+    flipped_image->dim.largura = largura;
+    flipped_image->dim.altura = altura;
+
+    flipped_image->pixels = (PixelRGB *)calloc(sizeof(PixelRGB), altura * largura);
 
     for (int y = 0; y < altura; y++)
     {
