@@ -199,7 +199,7 @@ void printImageColor(ImageRGB *img)
     }
 }
 
-int compare(const void *a, const void *b)
+int comparar(const void *a, const void *b)
 {
     return (*(int*)a - *(int*)b);
 }
@@ -243,53 +243,53 @@ ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
     return blurred_image;
 }
 
+// Função para calcular a mediana de um array de inteiros
+int mediana(int *valores, int tamanho) {
+    qsort(valores, tamanho, sizeof(int), comparar);
+    if (tamanho % 2 == 0) {
+        return (valores[tamanho / 2 - 1] + valores[tamanho / 2]) / 2;
+    } else {
+        return valores[tamanho / 2];
+    }
+}
+
+// Função para aplicar o filtro de mediana em uma imagem RGB
 ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
-    if (image == NULL || image->pixels == NULL) {
-        fprintf(stderr, "Erro: A imagem é nula.\n");
-        return NULL;
-    }
-
-    int width = image->dim.largura;
-    int height = image->dim.altura;
-
-    ImageRGB *blurred_image = create_image_rgb(width, height);
-    if (blurred_image == NULL) {
-        fprintf(stderr, "Erro ao alocar memória para a imagem desfocada RGB.\n");
-        exit(1);
-    }
+    int altura = image->dim.altura;
+    int largura = image->dim.largura;
+    ImageRGB *result = (ImageRGB *)malloc(sizeof(ImageRGB));
+    result->dim.altura = altura;
+    result->dim.largura = largura;
+    alocarRGB(altura, largura, &(result->pixels));
 
     int half_kernel = kernel_size / 2;
-    int kernel_area = kernel_size * kernel_size;
-    int *values_red = (int *)malloc(kernel_area * sizeof(int));
-    int *values_green = (int *)malloc(kernel_area * sizeof(int));
-    int *values_blue = (int *)malloc(kernel_area * sizeof(int));
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (int i = 0; i < altura; i++) {
+        for (int j = 0; j < largura; j++) {
+            int red_values[kernel_size * kernel_size];
+            int green_values[kernel_size * kernel_size];
+            int blue_values[kernel_size * kernel_size];
             int count = 0;
-            for (int dy = -half_kernel; dy <= half_kernel; dy++) {
-                for (int dx = -half_kernel; dx <= half_kernel; dx++) {
-                    int ny = y + dy;
-                    int nx = x + dx;
-                    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                        values_red[count] = image->pixels[ny * width + nx].red;
-                        values_green[count] = image->pixels[ny * width + nx].green;
-                        values_blue[count] = image->pixels[ny * width + nx].blue;
+
+            for (int ki = -half_kernel; ki <= half_kernel; ki++) {
+                for (int kj = -half_kernel; kj <= half_kernel; kj++) {
+                    int ni = i + ki;
+                    int nj = j + kj;
+
+                    if (ni >= 0 && ni < altura && nj >= 0 && nj < largura) {
+                        red_values[count] = image->pixels[ni * largura + nj].red;
+                        green_values[count] = image->pixels[ni * largura + nj].green;
+                        blue_values[count] = image->pixels[ni * largura + nj].blue;
                         count++;
                     }
                 }
             }
-            qsort(values_red, count, sizeof(int), compare);
-            qsort(values_green, count, sizeof(int), compare);
-            qsort(values_blue, count, sizeof(int), compare);
-            blurred_image->pixels[y * width + x].red = values_red[count / 2];
-            blurred_image->pixels[y * width + x].green = values_green[count / 2];
-            blurred_image->pixels[y * width + x].blue = values_blue[count / 2];
+
+            result->pixels[i * largura + j].red = mediana(red_values, count);
+            result->pixels[i * largura + j].green = mediana(green_values, count);
+            result->pixels[i * largura + j].blue = mediana(blue_values, count);
         }
     }
 
-    free(values_red);
-    free(values_green);
-    free(values_blue);
-    return blurred_image;
+    return result;
 }
