@@ -14,6 +14,8 @@ int main() {
     ImageRGB imrgb;
     ImageGray flip_gray_vertical;
     ImageRGB flip_rgb_vertical;
+    ImageRGB blur_rgb;
+    ImageGray blur_gray;
 
     system("pause");
 
@@ -21,7 +23,29 @@ int main() {
     printImageColor(&imrgb);
     printf("\n\n\n");
 
-// #################################### INICIO - flip_vertical_RGB ###########################################
+    // #################################### INICIO - BLUR_RGB ###########################################
+
+    // Inicializa blur_rgb
+    blur_rgb.dim.altura = imrgb.dim.altura;
+    blur_rgb.dim.largura = imrgb.dim.largura;
+    alocarRGB(blur_rgb.dim.altura, blur_rgb.dim.largura, &(blur_rgb.pixels));
+
+    // Chama a função ajustada
+    blur_rgb = *median_blur_rgb(&imrgb, 3);
+
+    FILE *RGBBlur;
+    RGBBlur = fopen("utils/blur_rgb.txt", "w");
+    salvar_imagem_arkv_rgb(&blur_rgb, RGBBlur);
+
+    RGBBlur = fopen("utils/blur_rgb.txt", "r");
+    ler_imagem_arkv(RGBBlur, &imrgb);
+    printImageColor(&imrgb);
+    printf("\n\n\n");
+
+    // #################################### FIM - BLUR_RGB ###########################################
+
+
+    // #################################### INICIO - flip_vertical_RGB ###########################################
     
     // Inicializa flip_rgb_vertical
     flip_rgb_vertical.dim.altura = imrgb.dim.altura;
@@ -40,7 +64,9 @@ int main() {
     printImageColor(&imrgb);
     printf("\n\n\n");  
 
-// #################################### FIM - flip_vertical_RGB ###########################################
+    // #################################### FIM - flip_vertical_RGB ###########################################
+
+
 
     converter_para_gray(&imrgb, &imgray);
 
@@ -53,9 +79,7 @@ int main() {
     printImageColor(&imrgb);
     printf("\n\n\n");
 
-
-
-// #################################### INICIO - flip_vertical_gray ###########################################
+    // #################################### INICIO - flip_vertical_gray ###########################################
 
     // Inicializa flip_gray_vertical
     flip_gray_vertical.dim.altura = imgray.dim.altura;
@@ -74,8 +98,33 @@ int main() {
     printImageColor(&imrgb);
     printf("\n\n\n");
 
-// #################################### FIM - flip_vertical_gray ###########################################
+    // #################################### FIM - flip_vertical_gray ###########################################
 
+    // #################################### INICIO - BLUR_GRAY ###########################################
+
+    // Inicializa blur_gray
+    blur_gray.dim.altura = imgray.dim.altura;
+    blur_gray.dim.largura = imgray.dim.largura;
+    alocarGray(blur_gray.dim.altura, blur_gray.dim.largura, &(blur_gray.pixels));
+
+    // Chama a função ajustada
+    blur_gray = *median_blur_gray(&imgray, 3);
+
+    FILE *GrayBlur;
+    GrayBlur = fopen("utils/blur_gray.txt", "w");
+    salvar_imagem_arkv(&blur_gray, GrayBlur);
+
+    GrayBlur = fopen("utils/blur_gray.txt", "r");
+    ler_imagem_arkv(GrayBlur, &imrgb);
+    printImageColor(&imrgb);
+    printf("\n\n\n");
+
+    system("pause");
+
+    // #################################### FIM - BLUR_GRAY ###########################################
+
+    free_image_gray(&blur_gray);
+    free_image_rgb(&blur_rgb);
     free_image_rgb(&flip_rgb_vertical);
     free_image_gray(&imgray);
     free_image_rgb(&imrgb);

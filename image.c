@@ -198,3 +198,88 @@ void printImageColor(ImageRGB *img)
         printf("\n");
     }
 }
+
+
+// ######################################################################################
+
+ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
+    if (image == NULL || image->pixels == NULL) {
+        fprintf(stderr, "Erro: A imagem é nula.\n");
+        return NULL;
+    }
+
+    int width = image->dim.largura;
+    int height = image->dim.altura;
+
+    ImageGray *blurred_image = create_image_gray(width, height);
+    if (blurred_image == NULL) {
+        fprintf(stderr, "Erro ao alocar memória para a imagem desfocada em escala de cinza.\n");
+        exit(1);
+    }
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            // Cálculo do valor do pixel desfocado usando o filtro de mediana
+            int sum = 0;
+            int count = 0;
+            for (int dy = -kernel_size / 2; dy <= kernel_size / 2; dy++) {
+                for (int dx = -kernel_size / 2; dx <= kernel_size / 2; dx++) {
+                    int nx = x + dx;
+                    int ny = y + dy;
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                        sum += image->pixels[ny * width + nx].value;
+                        count++;
+                    }
+                }
+            }
+            int median = sum / count;
+            blurred_image->pixels[y * width + x].value = median;
+        }
+    }
+
+    return blurred_image;
+}
+
+ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
+    if (image == NULL || image->pixels == NULL) {
+        fprintf(stderr, "Erro: A imagem é nula.\n");
+        return NULL;
+    }
+
+    int width = image->dim.largura;
+    int height = image->dim.altura;
+
+    ImageRGB *blurred_image = create_image_rgb(width, height);
+    if (blurred_image == NULL) {
+        fprintf(stderr, "Erro ao alocar memória para a imagem desfocada RGB.\n");
+        exit(1);
+    }
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            // Cálculo do valor do pixel desfocado usando o filtro de mediana
+            int sum_red = 0, sum_green = 0, sum_blue = 0;
+            int count = 0;
+            for (int dy = -kernel_size / 2; dy <= kernel_size / 2; dy++) {
+                for (int dx = -kernel_size / 2; dx <= kernel_size / 2; dx++) {
+                    int nx = x + dx;
+                    int ny = y + dy;
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                        sum_red += image->pixels[ny * width + nx].red;
+                        sum_green += image->pixels[ny * width + nx].green;
+                        sum_blue += image->pixels[ny * width + nx].blue;
+                        count++;
+                    }
+                }
+            }
+            int median_red = sum_red / count;
+            int median_green = sum_green / count;
+            int median_blue = sum_blue / count;
+            blurred_image->pixels[y * width + x].red = median_red;
+            blurred_image->pixels[y * width + x].green = median_green;
+            blurred_image->pixels[y * width + x].blue = median_blue;
+        }
+    }
+
+    return blurred_image;
+}
