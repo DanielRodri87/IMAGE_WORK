@@ -199,6 +199,10 @@ void printImageColor(ImageRGB *img)
     }
 }
 
+int compare(const void *a, const void *b)
+{
+    return (*(int*)a - *(int*)b);
+}
 
 // ######################################################################################
 
@@ -219,7 +223,6 @@ ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            // Cálculo do valor do pixel desfocado usando o filtro de mediana
             int sum = 0;
             int count = 0;
             for (int dy = -kernel_size / 2; dy <= kernel_size / 2; dy++) {
@@ -255,31 +258,38 @@ ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
         exit(1);
     }
 
+    int half_kernel = kernel_size / 2;
+    int kernel_area = kernel_size * kernel_size;
+    int *values_red = (int *)malloc(kernel_area * sizeof(int));
+    int *values_green = (int *)malloc(kernel_area * sizeof(int));
+    int *values_blue = (int *)malloc(kernel_area * sizeof(int));
+
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            // Cálculo do valor do pixel desfocado usando o filtro de mediana
-            int sum_red = 0, sum_green = 0, sum_blue = 0;
             int count = 0;
-            for (int dy = -kernel_size / 2; dy <= kernel_size / 2; dy++) {
-                for (int dx = -kernel_size / 2; dx <= kernel_size / 2; dx++) {
-                    int nx = x + dx;
+            for (int dy = -half_kernel; dy <= half_kernel; dy++) {
+                for (int dx = -half_kernel; dx <= half_kernel; dx++) {
                     int ny = y + dy;
+                    int nx = x + dx;
                     if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                        sum_red += image->pixels[ny * width + nx].red;
-                        sum_green += image->pixels[ny * width + nx].green;
-                        sum_blue += image->pixels[ny * width + nx].blue;
+                        values_red[count] = image->pixels[ny * width + nx].red;
+                        values_green[count] = image->pixels[ny * width + nx].green;
+                        values_blue[count] = image->pixels[ny * width + nx].blue;
                         count++;
                     }
                 }
             }
-            int median_red = sum_red / count;
-            int median_green = sum_green / count;
-            int median_blue = sum_blue / count;
-            blurred_image->pixels[y * width + x].red = median_red;
-            blurred_image->pixels[y * width + x].green = median_green;
-            blurred_image->pixels[y * width + x].blue = median_blue;
+            qsort(values_red, count, sizeof(int), compare);
+            qsort(values_green, count, sizeof(int), compare);
+            qsort(values_blue, count, sizeof(int), compare);
+            blurred_image->pixels[y * width + x].red = values_red[count / 2];
+            blurred_image->pixels[y * width + x].green = values_green[count / 2];
+            blurred_image->pixels[y * width + x].blue = values_blue[count / 2];
         }
     }
 
+    free(values_red);
+    free(values_green);
+    free(values_blue);
     return blurred_image;
 }
