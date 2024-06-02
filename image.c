@@ -208,6 +208,7 @@ void printImageGray(const ImageGray *img) {
         printf("\n");
     }
 }
+
 // ######################################################################################
 int mediana(int *valores, int tamanho) {
     qsort(valores, tamanho, sizeof(int), comparar);

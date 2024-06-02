@@ -19,13 +19,13 @@ int main() {
     ImageRGB clahe_rgb_img;
     ImageGray transpose_gray_var;
 
+
     system("pause");
 
-   ler_imagem_arkv(arq, &imrgb); // Leitura da imagem RGB
+    ler_imagem_arkv(arq, &imrgb);
     printImageColor(&imrgb);
     printf("\n\n\n");
 
-    
     // #################################### INICIO - BLUR_RGB ###########################################
 
     // Inicializa blur_rgb
@@ -96,7 +96,6 @@ int main() {
     printf("\n\n\n");  
 
     // #################################### FIM - flip_vertical_RGB ###########################################
-
     converter_para_gray(&imrgb, &imgray);
 
     FILE *GrayExample;
@@ -107,6 +106,7 @@ int main() {
     ler_imagem_arkv(GrayExample, &imrgb);
     printImageColor(&imrgb);
     printf("\n\n\n");
+
 
     // #################################### INÍCIO - TRANSPOSE_GRAY ###########################################
 
@@ -179,4 +179,5 @@ int main() {
     free_image_gray(&flip_gray_vertical);
 
     return 0;
+
 }
