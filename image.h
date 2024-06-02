@@ -44,16 +44,18 @@ void free_image_rgb(ImageRGB *image); // Daniel                          | Ok
 // Operações para ImageGray
 void flip_vertical_gray(ImageGray *image, ImageGray *flipped_image); // Ok
 ImageGray *flip_horizontal_gray(ImageGray *image); // Pedro Henrique
-ImageGray *transpose_gray(const ImageGray *image); // Rita
+
+void transpose_gray(const ImageGray *image, ImageGray *transposed_image); // Rita    |  OK
 
 // Operações para ImageRGB
-void flip_vertical_rgb(ImageRGB *image, ImageRGB *flipped_image); // Daniel
+void flip_vertical_rgb(ImageRGB *image, ImageRGB *flipped_image); // Daniel          |  OK
+
 ImageRGB *flip_horizontal_rgb(const ImageRGB *image); // Pedro Henrique
 ImageRGB *transpose_rgb(const ImageRGB *image); // Rita
 
 // Manipulação por pixel para ImageGray
-ImageGray *clahe_gray(const ImageGray *image, int tile_width, int tile_height);
-ImageGray *median_blur_gray(const ImageGray *image, int kernel_size);
+ImageGray *clahe_gray(const ImageGray *image, int tile_width, int tile_height); // Daniel     | OK
+ImageGray *median_blur_gray(const ImageGray *image, int kernel_size); // Daniel  | OK
 
 // Manipulação por pixel para ImageRGB
 ImageRGB *clahe_rgb(ImageRGB *img, int num_bins, int limite);

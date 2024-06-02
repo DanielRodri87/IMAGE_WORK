@@ -17,6 +17,8 @@ int main() {
     ImageRGB blur_rgb;
     ImageGray blur_gray;
     ImageRGB clahe_rgb_img;
+    ImageGray transpose_gray_var;
+
 
     system("pause");
 
@@ -94,9 +96,6 @@ int main() {
     printf("\n\n\n");  
 
     // #################################### FIM - flip_vertical_RGB ###########################################
-
-
-
     converter_para_gray(&imrgb, &imgray);
 
     FILE *GrayExample;
@@ -106,6 +105,24 @@ int main() {
     GrayExample = fopen("utils/example_GRAY.txt", "r");
     ler_imagem_arkv(GrayExample, &imrgb);
     printImageColor(&imrgb);
+    printf("\n\n\n");
+
+
+    // #################################### INÍCIO - TRANSPOSE_GRAY ###########################################
+
+    ImageRGB transpose_gray_saida;
+    transpose_gray_var.dim.altura = imgray.dim.altura;
+    transpose_gray_var.dim.largura = imgray.dim.largura;
+    alocarGray(transpose_gray_var.dim.altura, transpose_gray_var.dim.largura, &(transpose_gray_var.pixels));
+
+    transpose_gray(&imgray, &transpose_gray_var);
+    FILE *transpogray;
+    transpogray = fopen("utils/transpose_gray.txt", "w");
+    salvar_imagem_arkv(&transpose_gray_var, transpogray);
+
+    transpogray = fopen("utils/transpose_gray.txt", "r");
+    ler_imagem_arkv(transpogray, &transpose_gray_saida);
+    printImageColor(&transpose_gray_saida);
     printf("\n\n\n");
 
     // #################################### INICIO - BLUR_GRAY ###########################################
@@ -162,4 +179,5 @@ int main() {
     free_image_gray(&flip_gray_vertical);
 
     return 0;
+
 }

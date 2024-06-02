@@ -199,6 +199,15 @@ void printImageColor(ImageRGB *img)
     }
 }
 
+void printImageGray(const ImageGray *img) {
+    int i, j;
+    for (i = 0; i < img->dim.altura; i++) {
+        for (j = 0; j < img->dim.largura; j++) {
+            printf("%d ", img->pixels[i * img->dim.largura + j].value);
+        }
+        printf("\n");
+    }
+}
 
 // ######################################################################################
 int mediana(int *valores, int tamanho) {
@@ -394,4 +403,25 @@ ImageRGB *clahe_rgb(ImageRGB *img, int num_bins, int limite)
     }
 
     return equalized_img;
+}
+
+void transpose_gray(const ImageGray *image, ImageGray *transposed_image) {
+    if (image == NULL || image->pixels == NULL || transposed_image == NULL) {
+        fprintf(stderr, "Erro: Alguma das imagens é NULL.\n");
+        return;
+    }
+
+    int width = image->dim.largura;
+    int height = image->dim.altura;
+
+    transposed_image->dim.largura = height; // Transpose width and height
+    transposed_image->dim.altura = width;
+
+    alocarGray(height, width, &(transposed_image->pixels));
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            transposed_image->pixels[j * height + i].value = image->pixels[i * width + j].value;
+        }
+    }
 }
