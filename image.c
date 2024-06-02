@@ -199,12 +199,21 @@ void printImageColor(ImageRGB *img)
     }
 }
 
-int comparar(const void *a, const void *b)
-{
-    return (*(int*)a - *(int*)b);
-}
 
 // ######################################################################################
+int mediana(int *valores, int tamanho) {
+    qsort(valores, tamanho, sizeof(int), comparar);
+    if (tamanho % 2 == 0) {
+        return (valores[tamanho / 2 - 1] + valores[tamanho / 2]) / 2;
+    } else {
+        return valores[tamanho / 2];
+    }
+}
+
+int comparar(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+
 
 ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
     if (image == NULL || image->pixels == NULL) {
@@ -221,54 +230,43 @@ ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
         exit(1);
     }
 
+    int half_kernel = kernel_size / 2;
+    int window_size = kernel_size * kernel_size;
+    int *window = (int *)malloc(window_size * sizeof(int));
+
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            int sum = 0;
             int count = 0;
-            for (int dy = -kernel_size / 2; dy <= kernel_size / 2; dy++) {
-                for (int dx = -kernel_size / 2; dx <= kernel_size / 2; dx++) {
+            for (int dy = -half_kernel; dy <= half_kernel; dy++) {
+                for (int dx = -half_kernel; dx <= half_kernel; dx++) {
                     int nx = x + dx;
                     int ny = y + dy;
                     if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                        sum += image->pixels[ny * width + nx].value;
-                        count++;
+                        window[count++] = image->pixels[ny * width + nx].value;
                     }
                 }
             }
-            int median = sum / count;
-            blurred_image->pixels[y * width + x].value = median;
+            blurred_image->pixels[y * width + x].value = mediana(window, count);
         }
     }
 
+    free(window);
     return blurred_image;
 }
 
-// Função para calcular a mediana de um array de inteiros
-int mediana(int *valores, int tamanho) {
-    qsort(valores, tamanho, sizeof(int), comparar);
-    if (tamanho % 2 == 0) {
-        return (valores[tamanho / 2 - 1] + valores[tamanho / 2]) / 2;
-    } else {
-        return valores[tamanho / 2];
-    }
-}
-
-// Função para aplicar o filtro de mediana em uma imagem RGB
 ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
     int altura = image->dim.altura;
     int largura = image->dim.largura;
-    ImageRGB *result = (ImageRGB *)malloc(sizeof(ImageRGB));
-    result->dim.altura = altura;
-    result->dim.largura = largura;
-    alocarRGB(altura, largura, &(result->pixels));
+    ImageRGB *result = create_image_rgb(largura, altura);
 
     int half_kernel = kernel_size / 2;
+    int window_size = kernel_size * kernel_size;
+    int *red_values = (int *)malloc(window_size * sizeof(int));
+    int *green_values = (int *)malloc(window_size * sizeof(int));
+    int *blue_values = (int *)malloc(window_size * sizeof(int));
 
     for (int i = 0; i < altura; i++) {
         for (int j = 0; j < largura; j++) {
-            int red_values[kernel_size * kernel_size];
-            int green_values[kernel_size * kernel_size];
-            int blue_values[kernel_size * kernel_size];
             int count = 0;
 
             for (int ki = -half_kernel; ki <= half_kernel; ki++) {
@@ -290,6 +288,10 @@ ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
             result->pixels[i * largura + j].blue = mediana(blue_values, count);
         }
     }
+
+    free(red_values);
+    free(green_values);
+    free(blue_values);
 
     return result;
 }
