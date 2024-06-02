@@ -33,7 +33,7 @@ int main() {
     alocarRGB(blur_rgb.dim.altura, blur_rgb.dim.largura, &(blur_rgb.pixels));
 
     // Chama a função ajustada
-    blur_rgb = *median_blur_rgb(&imrgb, 3);
+    blur_rgb = *median_blur_rgb(&imrgb, 15);
 
     FILE *RGBBlur;
     RGBBlur = fopen("utils/blur_rgb.txt", "w");
@@ -91,7 +91,7 @@ int main() {
     alocarGray(blur_gray.dim.altura, blur_gray.dim.largura, &(blur_gray.pixels));
 
     // Chama a função ajustada
-    blur_gray = *median_blur_gray(&imgray, 3);
+    blur_gray = *median_blur_gray(&imgray, 15);
 
     FILE *GrayBlur;
     GrayBlur = fopen("utils/blur_gray.txt", "w");
