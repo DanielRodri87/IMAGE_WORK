@@ -16,6 +16,7 @@ int main() {
     ImageRGB flip_rgb_vertical;
     ImageRGB blur_rgb;
     ImageGray blur_gray;
+    ImageRGB clahe_rgb_img;
 
     system("pause");
 
@@ -45,6 +46,31 @@ int main() {
     printf("\n\n\n");
 
     // #################################### FIM - BLUR_RGB ###########################################
+
+
+    // #################################### INICIO - Clahe_RGB ##########################################
+
+    // Inicializa clahe_rgb_img
+    ImageRGB img_saida_clahe_rgb;
+
+    clahe_rgb_img.dim.altura = imrgb.dim.altura;
+    clahe_rgb_img.dim.largura = imrgb.dim.largura;
+    alocarRGB(clahe_rgb_img.dim.altura, clahe_rgb_img.dim.largura, &(clahe_rgb_img.pixels));
+
+    // Chama a função ajustada
+    clahe_rgb_img = *clahe_rgb(&imrgb, 256, 40);
+
+    FILE *RGBClahe;
+    RGBClahe = fopen("utils/clahe_rgb.txt", "w");
+    salvar_imagem_arkv_rgb(&clahe_rgb_img, RGBClahe);
+
+    RGBClahe = fopen("utils/clahe_rgb.txt", "r");
+    ler_imagem_arkv(RGBClahe, &img_saida_clahe_rgb);
+    printImageColor(&img_saida_clahe_rgb);
+    printf("\n\n\n");
+
+    // #################################### FIM - Clahe_RGB ###########################################
+
 
 
     // #################################### INICIO - flip_vertical_RGB ###########################################

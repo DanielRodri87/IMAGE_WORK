@@ -56,7 +56,7 @@ ImageGray *clahe_gray(const ImageGray *image, int tile_width, int tile_height);
 ImageGray *median_blur_gray(const ImageGray *image, int kernel_size);
 
 // Manipulação por pixel para ImageRGB
-ImageRGB *clahe_rgb(const ImageRGB *image, int tile_width, int tile_height);
+ImageRGB *clahe_rgb(ImageRGB *img, int num_bins, int limite);
 ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size);
 
 

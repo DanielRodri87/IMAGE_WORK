@@ -1,7 +1,7 @@
 #include "image.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 void salvar_imagem_arkv(ImageGray *img, FILE *gray_image)
 {
@@ -215,8 +215,10 @@ int comparar(const void *a, const void *b) {
 }
 
 
-ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
-    if (image == NULL || image->pixels == NULL) {
+ImageGray *median_blur_gray(const ImageGray *image, int kernel_size)
+{
+    if (image == NULL || image->pixels == NULL)
+    {
         fprintf(stderr, "Erro: A imagem é nula.\n");
         return NULL;
     }
@@ -225,7 +227,8 @@ ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
     int height = image->dim.altura;
 
     ImageGray *blurred_image = create_image_gray(width, height);
-    if (blurred_image == NULL) {
+    if (blurred_image == NULL)
+    {
         fprintf(stderr, "Erro ao alocar memória para a imagem desfocada em escala de cinza.\n");
         exit(1);
     }
@@ -234,14 +237,19 @@ ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
     int window_size = kernel_size * kernel_size;
     int *window = (int *)malloc(window_size * sizeof(int));
 
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
             int count = 0;
-            for (int dy = -half_kernel; dy <= half_kernel; dy++) {
-                for (int dx = -half_kernel; dx <= half_kernel; dx++) {
+            for (int dy = -half_kernel; dy <= half_kernel; dy++)
+            {
+                for (int dx = -half_kernel; dx <= half_kernel; dx++)
+                {
                     int nx = x + dx;
                     int ny = y + dy;
-                    if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height)
+                    {
                         window[count++] = image->pixels[ny * width + nx].value;
                     }
                 }
@@ -254,7 +262,8 @@ ImageGray *median_blur_gray(const ImageGray *image, int kernel_size) {
     return blurred_image;
 }
 
-ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
+ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size)
+{
     int altura = image->dim.altura;
     int largura = image->dim.largura;
     ImageRGB *result = create_image_rgb(largura, altura);
@@ -265,16 +274,21 @@ ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
     int *green_values = (int *)malloc(window_size * sizeof(int));
     int *blue_values = (int *)malloc(window_size * sizeof(int));
 
-    for (int i = 0; i < altura; i++) {
-        for (int j = 0; j < largura; j++) {
+    for (int i = 0; i < altura; i++)
+    {
+        for (int j = 0; j < largura; j++)
+        {
             int count = 0;
 
-            for (int ki = -half_kernel; ki <= half_kernel; ki++) {
-                for (int kj = -half_kernel; kj <= half_kernel; kj++) {
+            for (int ki = -half_kernel; ki <= half_kernel; ki++)
+            {
+                for (int kj = -half_kernel; kj <= half_kernel; kj++)
+                {
                     int ni = i + ki;
                     int nj = j + kj;
 
-                    if (ni >= 0 && ni < altura && nj >= 0 && nj < largura) {
+                    if (ni >= 0 && ni < altura && nj >= 0 && nj < largura)
+                    {
                         red_values[count] = image->pixels[ni * largura + nj].red;
                         green_values[count] = image->pixels[ni * largura + nj].green;
                         blue_values[count] = image->pixels[ni * largura + nj].blue;
@@ -294,4 +308,90 @@ ImageRGB *median_blur_rgb(const ImageRGB *image, int kernel_size) {
     free(blue_values);
 
     return result;
+}
+
+
+void calcular_histograma_rgb(const ImageRGB *img, int *hist_red, int *hist_green, int *hist_blue, int num_bins)
+{
+    int bin_size = 256 / num_bins;
+
+    for (int i = 0; i < num_bins; i++)
+    {
+        hist_red[i] = 0;
+        hist_green[i] = 0;
+        hist_blue[i] = 0;
+    }
+
+    for (int i = 0; i < img->dim.altura; i++)
+    {
+        for (int j = 0; j < img->dim.largura; j++)
+        {
+            int red_bin = img->pixels[i * img->dim.largura + j].red / bin_size;
+            int green_bin = img->pixels[i * img->dim.largura + j].green / bin_size;
+            int blue_bin = img->pixels[i * img->dim.largura + j].blue / bin_size;
+
+            hist_red[red_bin]++;
+            hist_green[green_bin]++;
+            hist_blue[blue_bin]++;
+        }
+    }
+}
+
+ImageRGB *clahe_rgb(ImageRGB *img, int num_bins, int limite)
+{
+    int hist_red[256] = {0};
+    int hist_green[256] = {0};
+    int hist_blue[256] = {0};
+
+    calcular_histograma_rgb(img, hist_red, hist_green, hist_blue, num_bins);
+
+    int total_pixels = img->dim.altura * img->dim.largura;
+
+    int cdf_red[256] = {0};
+    int cdf_green[256] = {0};
+    int cdf_blue[256] = {0};
+
+    cdf_red[0] = hist_red[0];
+    cdf_green[0] = hist_green[0];
+    cdf_blue[0] = hist_blue[0];
+
+    for (int i = 1; i < 256; i++)
+    {
+        cdf_red[i] = cdf_red[i - 1] + hist_red[i];
+        cdf_green[i] = cdf_green[i - 1] + hist_green[i];
+        cdf_blue[i] = cdf_blue[i - 1] + hist_blue[i];
+    }
+
+    int min_cdf_red = cdf_red[0];
+    int min_cdf_green = cdf_green[0];
+    int min_cdf_blue = cdf_blue[0];
+
+    for (int i = 1; i < 256; i++)
+    {
+        if (cdf_red[i] != 0 && cdf_red[i] < min_cdf_red)
+            min_cdf_red = cdf_red[i];
+        if (cdf_green[i] != 0 && cdf_green[i] < min_cdf_green)
+            min_cdf_green = cdf_green[i];
+        if (cdf_blue[i] != 0 && cdf_blue[i] < min_cdf_blue)
+            min_cdf_blue = cdf_blue[i];
+    }
+
+    ImageRGB *equalized_img = create_image_rgb(img->dim.largura, img->dim.altura);
+
+    for (int i = 0; i < img->dim.altura; i++)
+    {
+        for (int j = 0; j < img->dim.largura; j++)
+        {
+            int pixel_pos = i * img->dim.largura + j;
+            int red_value = img->pixels[pixel_pos].red;
+            int green_value = img->pixels[pixel_pos].green;
+            int blue_value = img->pixels[pixel_pos].blue;
+
+            equalized_img->pixels[pixel_pos].red = (cdf_red[red_value] - min_cdf_red) * 255 / (total_pixels - min_cdf_red);
+            equalized_img->pixels[pixel_pos].green = (cdf_green[green_value] - min_cdf_green) * 255 / (total_pixels - min_cdf_green);
+            equalized_img->pixels[pixel_pos].blue = (cdf_blue[blue_value] - min_cdf_blue) * 255 / (total_pixels - min_cdf_blue);
+        }
+    }
+
+    return equalized_img;
 }
