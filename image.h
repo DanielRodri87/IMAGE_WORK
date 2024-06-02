@@ -27,6 +27,7 @@ typedef struct imageRGB {
 } ImageRGB;
 
 
+int comparar(const void *a, const void *b);
 
 void salvar_imagem_arkv(ImageGray *img, FILE *gray_image); // Ok
 void salvar_imagem_arkv_rgb(ImageRGB *img, FILE *rgb_image); // Ok
