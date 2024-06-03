@@ -183,7 +183,6 @@ void flip_vertical_rgb(ImageRGB *image, ImageRGB *flipped_image)
     }
 }
 
-
 void printPixelColor(int lin, int col, ImageRGB *img)
 {
     printf("\033[38;2;%d;%d;%dm**\033[0m", img->pixels[lin * img->dim.largura + col].red, img->pixels[lin * img->dim.largura + col].green, img->pixels[lin * img->dim.largura + col].blue);
@@ -206,6 +205,48 @@ void printImageGray(const ImageGray *img) {
             printf("%d ", img->pixels[i * img->dim.largura + j].value);
         }
         printf("\n");
+    }
+}
+
+void flip_horizontal_gray(ImageGray *image, ImageGray *flipped_image) {
+    if (image == NULL || image->pixels == NULL || flipped_image == NULL) {
+        fprintf(stderr, "Erro: Uma das imagens é NULL.\n");
+        return;
+    }
+
+    int largura = image->dim.largura;
+    int altura = image->dim.altura;
+
+    flipped_image->dim.largura = largura;
+    flipped_image->dim.altura = altura;
+
+    alocarGray(altura, largura, &(flipped_image->pixels));
+
+    for (int y = 0; y < altura; y++) {
+        for (int x = 0; x < largura; x++) {
+            flipped_image->pixels[y * largura + (largura - x - 1)] = image->pixels[y * largura + x];
+        }
+    }
+}
+
+void flip_horizontal_rgb(ImageRGB *image, ImageRGB *flipped_image) {
+    if (image == NULL || image->pixels == NULL || flipped_image == NULL) {
+        fprintf(stderr, "Erro: Uma das imagens é NULL.\n");
+        return;
+    }
+
+    int largura = image->dim.largura;
+    int altura = image->dim.altura;
+
+    flipped_image->dim.largura = largura;
+    flipped_image->dim.altura = altura;
+
+    flipped_image->pixels = (PixelRGB *)calloc(sizeof(PixelRGB), altura * largura);
+
+    for (int y = 0; y < altura; y++) {
+        for (int x = 0; x < largura; x++) {
+            flipped_image->pixels[y * largura + (largura - x - 1)] = image->pixels[y * largura + x];
+        }
     }
 }
 

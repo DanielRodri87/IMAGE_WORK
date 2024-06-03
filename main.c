@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "image.h"
 
 int main() {
@@ -19,7 +20,6 @@ int main() {
     ImageRGB clahe_rgb_img;
     ImageGray transpose_gray_var;
     ImageRGB transpose_rgb_var;
-
 
     system("pause");
 
@@ -186,6 +186,41 @@ int main() {
 
     // #################################### FIM - flip_vertical_gray ###########################################
 
+      // Inicializa flip_gray_horizontal
+    ImageGray flip_gray_horizontal;
+    flip_gray_horizontal.dim.altura = imgray.dim.altura;
+    flip_gray_horizontal.dim.largura = imgray.dim.largura;
+    alocarGray(flip_gray_horizontal.dim.altura, flip_gray_horizontal.dim.largura, &(flip_gray_horizontal.pixels));
+
+    // Chama a função de flip horizontal para imagem em escala de cinza
+    flip_horizontal_gray(&imgray, &flip_gray_horizontal);
+
+    // Salva o resultado em um arquivo
+    FILE *GrayFlipHorizontal;
+    GrayFlipHorizontal = fopen("utils/flip_gray_horizontal.txt", "w");
+    salvar_imagem_arkv(&flip_gray_horizontal, GrayFlipHorizontal);
+
+    // Libera a memória alocada
+    fclose(GrayFlipHorizontal);
+    free_image_gray(&flip_gray_horizontal);
+
+    // Inicializa flip_rgb_horizontal
+    ImageRGB flip_rgb_horizontal;
+    flip_rgb_horizontal.dim.altura = imrgb.dim.altura;
+    flip_rgb_horizontal.dim.largura = imrgb.dim.largura;
+    alocarRGB(flip_rgb_horizontal.dim.altura, flip_rgb_horizontal.dim.largura, &(flip_rgb_horizontal.pixels));
+
+    // Chama a função de flip horizontal para imagem RGB
+    flip_horizontal_rgb(&imrgb, &flip_rgb_horizontal);
+
+    // Salva o resultado em um arquivo
+    FILE *RGBFlipHorizontal;
+    RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "w");
+    salvar_imagem_arkv_rgb(&flip_rgb_horizontal, RGBFlipHorizontal);
+
+    // Libera a memória alocada
+    fclose(RGBFlipHorizontal);
+    free_image_rgb(&flip_rgb_horizontal);
 
     system("pause");
     // free_image_gray(&blur_gray);
