@@ -165,6 +165,35 @@ int main() {
     printImageColor(&transpose_gray_saida);
     printf("\n\n\n");
 
+
+    // #################################### FIM - TRANSPOSE_GRAY ###########################################
+
+    // #################################### INICIO - CLAHE_GRAY ###########################################
+
+    ImageRGB img_clahe_gray_saida;
+
+    // Inicializa clahe_gray
+    ImageGray clahe_gray_saida;
+    clahe_gray_saida.dim.altura = imgray.dim.altura;
+    clahe_gray_saida.dim.largura = imgray.dim.largura;
+    alocarGray(clahe_gray_saida.dim.altura, clahe_gray_saida.dim.largura, &(clahe_gray_saida.pixels));
+
+    // Chama a função ajustada
+    clahe_gray_saida = *clahe_gray(&imgray, 256, 90);
+
+    FILE *GrayClahe;
+    GrayClahe = fopen("utils/clahe_gray.txt", "w");
+    salvar_imagem_arkv(&clahe_gray_saida, GrayClahe);
+
+    GrayClahe = fopen("utils/clahe_gray.txt", "r");
+    ler_imagem_arkv(GrayClahe, &img_clahe_gray_saida);
+    printImageColor(&img_clahe_gray_saida);
+    printf("\n\n\n");
+
+
+    // #################################### FIM - CLAHE_GRAY ###########################################
+
+
     // #################################### INICIO - BLUR_GRAY ###########################################
     ImageRGB img_blur_gray_saida;
 
