@@ -14,6 +14,8 @@ int main() {
     ImageRGB imrgb;
     ImageGray flip_gray_vertical;
     ImageRGB flip_rgb_vertical;
+    ImageGray flip_gray_horizontal;
+    ImageRGB flip_rgb_horizontal;
     ImageRGB blur_rgb;
     ImageGray blur_gray;
     ImageRGB clahe_rgb_img;
@@ -113,6 +115,27 @@ int main() {
     printf("\n\n\n");  
 
     // #################################### FIM - flip_vertical_RGB ###########################################
+
+    // ################################### INICIO - flip_horizontal_rgb ######################################
+
+    ImageRGB flip_rgb_horizontal_saida;
+    flip_rgb_horizontal_saida.dim.altura = imrgb.dim.altura;
+    flip_rgb_horizontal_saida.dim.largura = imrgb.dim.largura;
+    alocarRGB(flip_rgb_horizontal_saida.dim.altura, flip_rgb_horizontal_saida.dim.largura, &(flip_rgb_horizontal_saida.pixels));
+
+    flip_horizontal_rgb(&imrgb, &flip_rgb_horizontal_saida);
+    FILE *RGBFlipHorizontal;
+    RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "w");
+    salvar_imagem_arkv_rgb(&flip_rgb_horizontal_saida, RGBFlipHorizontal);
+
+    RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "r");
+    ler_imagem_arkv(RGBFlipHorizontal, &flip_rgb_horizontal_saida);
+    printImageColor(&flip_rgb_horizontal_saida);
+    printf("\n\n\n");
+
+
+    // ################################### FIM - flip_horizontal_rgb ######################################
+
     converter_para_gray(&imrgb, &imgray);
 
     FILE *GrayExample;
@@ -185,6 +208,7 @@ int main() {
     printf("\n\n\n");
 
     // #################################### FIM - flip_vertical_gray ###########################################
+
 
 
     system("pause");
