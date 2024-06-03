@@ -186,24 +186,24 @@ int main() {
 
     // #################################### FIM - flip_vertical_gray ###########################################
 
-      // Inicializa flip_gray_horizontal
+    // Inicializa flip_gray_horizontal
     ImageGray flip_gray_horizontal;
     flip_gray_horizontal.dim.altura = imgray.dim.altura;
     flip_gray_horizontal.dim.largura = imgray.dim.largura;
     alocarGray(flip_gray_horizontal.dim.altura, flip_gray_horizontal.dim.largura, &(flip_gray_horizontal.pixels));
 
     // Chama a função de flip horizontal para imagem em escala de cinza
-    flip_horizontal_gray(&imgray, &flip_gray_horizontal);
+    flip_horizontal_gray(&imgray);
 
     // Salva o resultado em um arquivo
     FILE *GrayFlipHorizontal;
     GrayFlipHorizontal = fopen("utils/flip_gray_horizontal.txt", "w");
-    salvar_imagem_arkv(&flip_gray_horizontal, GrayFlipHorizontal);
+    salvar_imagem_arkv(&imgray, GrayFlipHorizontal);
 
     // Libera a memória alocada
     fclose(GrayFlipHorizontal);
-    free_image_gray(&flip_gray_horizontal);
-
+    free_image_gray(&imgray);
+    
     // Inicializa flip_rgb_horizontal
     ImageRGB flip_rgb_horizontal;
     flip_rgb_horizontal.dim.altura = imrgb.dim.altura;
