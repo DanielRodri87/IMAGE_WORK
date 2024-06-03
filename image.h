@@ -43,14 +43,14 @@ void free_image_rgb(ImageRGB *image); // Daniel                          | Ok
 
 // Operações para ImageGray
 void flip_vertical_gray(ImageGray *image, ImageGray *flipped_image); // Ok
-ImageGray *flip_horizontal_gray(const ImageGray *image); // Pedro Henrique
+void flip_horizontal_gray(ImageGray *image, ImageGray *flipped_image); // Pedro Henrique
 
 void transpose_gray(const ImageGray *image, ImageGray *transposed_image); // Rita    |  OK
 
 // Operações para ImageRGB
 void flip_vertical_rgb(ImageRGB *image, ImageRGB *flipped_image); // Daniel          |  OK
 
-void flip_horizontal_rgb(ImageRGB *image, ImageRGB *flipped_image);// Pedro Henrique
+void flip_horizontal_rgb(ImageRGB *image, ImageRGB *flipped_image); // Pedro Henrique
 void transpose_rgb(const ImageRGB *image, ImageRGB *transposed_image); // Rita 
 
 // Manipulação por pixel para ImageGray
