@@ -425,6 +425,53 @@ ImageRGB *clahe_rgb(ImageRGB *img, int num_bins, int limite)
     return equalized_img;
 }
 
+void calcular_histograma_gray(const ImageGray *img, int *hist, int num_bins) {
+    int bin_size = 256 / num_bins;
+
+    for (int i = 0; i < num_bins; i++) {
+        hist[i] = 0;
+    }
+
+    for (int i = 0; i < img->dim.altura; i++) {
+        for (int j = 0; j < img->dim.largura; j++) {
+            int bin = img->pixels[i * img->dim.largura + j].value / bin_size;
+            hist[bin]++;
+        }
+    }
+}
+
+ImageGray *clahe_gray(ImageGray *img, int num_bins, int limite) {
+    int hist[256] = {0};
+    calcular_histograma_gray(img, hist, num_bins);
+
+    int total_pixels = img->dim.altura * img->dim.largura;
+
+    // Calculate CDF
+    int cdf[256] = {0};
+    cdf[0] = hist[0];
+    for (int i = 1; i < 256; i++) {
+        cdf[i] = cdf[i - 1] + hist[i];
+    }
+
+    int min_cdf = cdf[0];
+    for (int i = 1; i < 256; i++) {
+        if (cdf[i] != 0 && cdf[i] < min_cdf) {
+            min_cdf = cdf[i];
+        }
+    }
+
+    ImageGray *equalized_img = create_image_gray(img->dim.largura, img->dim.altura);
+    for (int i = 0; i < img->dim.altura; i++) {
+        for (int j = 0; j < img->dim.largura; j++) {
+            int pixel_pos = i * img->dim.largura + j;
+            int value = img->pixels[pixel_pos].value;
+            equalized_img->pixels[pixel_pos].value = (cdf[value] - min_cdf) * 255 / (total_pixels - min_cdf);
+        }
+    }
+
+    return equalized_img;
+}
+
 void transpose_gray(const ImageGray *image, ImageGray *transposed_image) {
     if (image == NULL || image->pixels == NULL || transposed_image == NULL) {
         fprintf(stderr, "Erro: Alguma das imagens é NULL.\n");

@@ -54,7 +54,7 @@ void flip_horizontal_rgb(ImageRGB *image, ImageRGB *flipped_image); // Pedro Hen
 void transpose_rgb(const ImageRGB *image, ImageRGB *transposed_image); // Rita 
 
 // Manipulação por pixel para ImageGray
-ImageGray *clahe_gray(const ImageGray *image, int tile_width, int tile_height); // Daniel     | OK
+ImageGray *clahe_gray(ImageGray *img, int num_bins, int limite); // Daniel     | OK
 ImageGray *median_blur_gray(const ImageGray *image, int kernel_size); // Daniel  | OK
 
 // Manipulação por pixel para ImageRGB
