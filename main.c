@@ -186,6 +186,8 @@ int main() {
 
     // #################################### FIM - flip_vertical_gray ###########################################
 
+    // #################################### INICIO - flip_gray_horizontal ###########################################
+
     // Inicializa flip_gray_horizontal
     ImageGray flip_gray_horizontal;
     flip_gray_horizontal.dim.altura = imgray.dim.altura;
@@ -203,12 +205,15 @@ int main() {
     // Libera a memória alocada
     fclose(GrayFlipHorizontal);
     free_image_gray(&imgray);
-    
+
+    // #################################### INICIO - flip_gray_horizontal ###########################################
     // Inicializa flip_rgb_horizontal
     ImageRGB flip_rgb_horizontal;
     flip_rgb_horizontal.dim.altura = imrgb.dim.altura;
     flip_rgb_horizontal.dim.largura = imrgb.dim.largura;
     alocarRGB(flip_rgb_horizontal.dim.altura, flip_rgb_horizontal.dim.largura, &(flip_rgb_horizontal.pixels));
+
+     // #################################### INICIO - flip_horizontal_rgb ###########################################
 
     // Chama a função de flip horizontal para imagem RGB
     flip_horizontal_rgb(&imrgb, &flip_rgb_horizontal);
@@ -231,6 +236,8 @@ int main() {
     // free_image_gray(&flip_gray_vertical);
     // free_image_rgb(&transporgb);
     // free_image_gray(&transpogray);
+    // #################################### FIM - flip_horizontal ###########################################
+
 
     return 0;
 
