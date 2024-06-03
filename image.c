@@ -425,3 +425,26 @@ void transpose_gray(const ImageGray *image, ImageGray *transposed_image) {
         }
     }
 }
+
+void transpose_rgb(const ImageRGB *image, ImageRGB *transposed_image) {
+    if (image == NULL || image->pixels == NULL || transposed_image == NULL) {
+        fprintf(stderr, "Erro: Alguma das imagens é NULL.\n");
+        return;
+    }
+
+    int width = image->dim.largura;
+    int height = image->dim.altura;
+
+    transposed_image->dim.largura = height; // Transpose width and height
+    transposed_image->dim.altura = width;
+
+    alocarRGB(height, width, &(transposed_image->pixels));
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            transposed_image->pixels[j * height + i].red = image->pixels[i * width + j].red;
+            transposed_image->pixels[j * height + i].green = image->pixels[i * width + j].green;
+            transposed_image->pixels[j * height + i].blue = image->pixels[i * width + j].blue;
+        }
+    }
+}

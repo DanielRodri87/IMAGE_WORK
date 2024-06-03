@@ -18,6 +18,7 @@ int main() {
     ImageGray blur_gray;
     ImageRGB clahe_rgb_img;
     ImageGray transpose_gray_var;
+    ImageRGB transpose_rgb_var;
 
 
     system("pause");
@@ -73,6 +74,22 @@ int main() {
 
     // #################################### FIM - Clahe_RGB ###########################################
 
+    // #################################### TRANPOSE RGB ###########################################
+
+    ImageRGB img_saida_transpose_rgb;
+    transpose_rgb_var.dim.altura = imrgb.dim.altura;
+    transpose_rgb_var.dim.largura = imrgb.dim.largura;
+    alocarRGB(transpose_rgb_var.dim.altura, transpose_rgb_var.dim.largura, &(transpose_rgb_var.pixels));
+
+    transpose_rgb(&imrgb, &transpose_rgb_var);
+    FILE *transporgb;
+    transporgb = fopen("utils/transpose_rgb.txt", "w");
+    salvar_imagem_arkv_rgb(&transpose_rgb_var, transporgb);
+
+    transporgb = fopen("utils/transpose_rgb.txt", "r");
+    ler_imagem_arkv(transporgb, &img_saida_transpose_rgb);
+    printImageColor(&img_saida_transpose_rgb);
+    printf("\n\n\n");
 
 
     // #################################### INICIO - flip_vertical_RGB ###########################################
@@ -171,12 +188,14 @@ int main() {
 
 
     system("pause");
-    free_image_gray(&blur_gray);
-    free_image_rgb(&blur_rgb);
-    free_image_rgb(&flip_rgb_vertical);
-    free_image_gray(&imgray);
-    free_image_rgb(&imrgb);
-    free_image_gray(&flip_gray_vertical);
+    // free_image_gray(&blur_gray);
+    // free_image_rgb(&blur_rgb);
+    // free_image_rgb(&flip_rgb_vertical);
+    // free_image_gray(&imgray);
+    // free_image_rgb(&imrgb);
+    // free_image_gray(&flip_gray_vertical);
+    // free_image_rgb(&transporgb);
+    // free_image_gray(&transpogray);
 
     return 0;
 
