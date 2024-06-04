@@ -10,13 +10,29 @@ def txt_from_image_gray(image_path, output_path, gray=True):
     pixels = list(img.getdata())
     
     with open(output_path, 'w') as file:
-        file.write(f"{largura}\n")
-        file.write(f"{altura}\n")
+        file.write(f"{largura}/n")
+        file.write(f"{altura}/n")
         for y in range(altura):
             for x in range(largura):
                 pixel = str(pixels[y * largura + x]).replace(",", "").replace("(", "").replace(")", "")
                 file.write(f"{pixel},")
-            file.write("\n")
+            file.write("/n")
+            
+def txt_from_image_rgb(image_path, output_path):
+    img = Image.open(image_path)
+    img = img.convert('RGB')
+    
+    largura, altura = img.size
+    pixels = list(img.getdata())
+    
+    with open(output_path, 'w') as file:
+        file.write(f"{largura}/n")
+        file.write(f"{altura}/n")
+        for y in range(altura):
+            for x in range(largura):
+                pixel = str(pixels[y * largura + x]).replace(",", "").replace("(", "").replace(")", "")
+                file.write(f"{pixel},")
+            file.write("/n")
 
 def image_gray_from_txt(txt_path, output_path):
     with open(txt_path, 'r') as file:
@@ -52,3 +68,13 @@ def image_rgb_from_txt(txt_path, output_path):
 
         # Salva a imagem resultante
         nova_imagem.save(output_path)
+
+
+def main():
+    txt_from_image_rgb('utils/example64.png', 'example64.txt')
+    txt_from_image_rgb('utils/example128.png', 'example128.txt')
+    txt_from_image_rgb('utils/example256.png', 'example256.txt')
+
+
+if __name__ == "__main__":
+    main()

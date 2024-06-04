@@ -1,141 +1,36 @@
 #include <stdio.h>
 #include "image.h"
 
-int main() {
-    FILE *arq;
-    arq = fopen("utils/input_image_example_RGB.txt", "r");
+void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb);
+void aplicar_blur_rgb(ImageRGB *imrgb);
+void aplicar_clahe_rgb(ImageRGB *imrgb);
+void aplicar_transpose_rgb(ImageRGB *imrgb);
+void aplicar_flip_vertical_rgb(ImageRGB *imrgb);
+void aplicar_flip_horizontal_rgb(ImageRGB *imrgb);
+void aplicar_transpose_gray(ImageGray *imgray);
+void aplicar_clahe_gray(ImageGray *imgray);
+void aplicar_blur_gray(ImageGray *imgray);
+void aplicar_flip_vertical_gray(ImageGray *imgray);
 
+int main() {
+    FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
     if (arq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
-
-    ImageGray imgray;
+    system("pause");
     ImageRGB imrgb;
-    ImageGray flip_gray_vertical;
-    ImageRGB flip_rgb_vertical;
-    ImageGray flip_gray_horizontal;
-    ImageRGB flip_rgb_horizontal;
-    ImageRGB blur_rgb;
-    ImageGray blur_gray;
-    ImageRGB clahe_rgb_img;
-    ImageGray transpose_gray_var;
-    ImageRGB transpose_rgb_var;
+    criar_imagem_rgb(arq, &imrgb);
 
+    aplicar_blur_rgb(&imrgb);
+    aplicar_clahe_rgb(&imrgb);
+    aplicar_transpose_rgb(&imrgb);
+    aplicar_flip_vertical_rgb(&imrgb);
+    aplicar_flip_horizontal_rgb(&imrgb);
 
     system("pause");
 
-    ler_imagem_arkv(arq, &imrgb);
-    printImageColor(&imrgb);
-    printf("\n\n\n");
-
-    // #################################### INICIO - BLUR_RGB ###########################################
-
-    // Inicializa blur_rgb
-    ImageRGB img_saida_blur_rgb;
-
-    blur_rgb.dim.altura = imrgb.dim.altura;
-    blur_rgb.dim.largura = imrgb.dim.largura;
-    alocarRGB(blur_rgb.dim.altura, blur_rgb.dim.largura, &(blur_rgb.pixels));
-
-    // Chama a função ajustada
-    blur_rgb = *median_blur_rgb(&imrgb, 15);
-
-    FILE *RGBBlur;
-    RGBBlur = fopen("utils/blur_rgb.txt", "w");
-    salvar_imagem_arkv_rgb(&blur_rgb, RGBBlur);
-
-    RGBBlur = fopen("utils/blur_rgb.txt", "r");
-    ler_imagem_arkv(RGBBlur, &img_saida_blur_rgb);
-    printImageColor(&img_saida_blur_rgb);
-    printf("\n\n\n");
-
-    // #################################### FIM - BLUR_RGB ###########################################
-
-
-    // #################################### INICIO - Clahe_RGB ##########################################
-
-    // Inicializa clahe_rgb_img
-    ImageRGB img_saida_clahe_rgb;
-
-    clahe_rgb_img.dim.altura = imrgb.dim.altura;
-    clahe_rgb_img.dim.largura = imrgb.dim.largura;
-    alocarRGB(clahe_rgb_img.dim.altura, clahe_rgb_img.dim.largura, &(clahe_rgb_img.pixels));
-
-    // Chama a função ajustada
-    clahe_rgb_img = *clahe_rgb(&imrgb, 256, 40);
-
-    FILE *RGBClahe;
-    RGBClahe = fopen("utils/clahe_rgb.txt", "w");
-    salvar_imagem_arkv_rgb(&clahe_rgb_img, RGBClahe);
-
-    RGBClahe = fopen("utils/clahe_rgb.txt", "r");
-    ler_imagem_arkv(RGBClahe, &img_saida_clahe_rgb);
-    printImageColor(&img_saida_clahe_rgb);
-    printf("\n\n\n");
-
-    // #################################### FIM - Clahe_RGB ###########################################
-
-    // #################################### TRANPOSE RGB ###########################################
-
-    ImageRGB img_saida_transpose_rgb;
-    transpose_rgb_var.dim.altura = imrgb.dim.altura;
-    transpose_rgb_var.dim.largura = imrgb.dim.largura;
-    alocarRGB(transpose_rgb_var.dim.altura, transpose_rgb_var.dim.largura, &(transpose_rgb_var.pixels));
-
-    transpose_rgb(&imrgb, &transpose_rgb_var);
-    FILE *transporgb;
-    transporgb = fopen("utils/transpose_rgb.txt", "w");
-    salvar_imagem_arkv_rgb(&transpose_rgb_var, transporgb);
-
-    transporgb = fopen("utils/transpose_rgb.txt", "r");
-    ler_imagem_arkv(transporgb, &img_saida_transpose_rgb);
-    printImageColor(&img_saida_transpose_rgb);
-    printf("\n\n\n");
-
-
-    // #################################### INICIO - flip_vertical_RGB ###########################################
-    
-    ImageRGB flip_rgb_vertical_saida;
-    // Inicializa flip_rgb_vertical
-    flip_rgb_vertical.dim.altura = imrgb.dim.altura;
-    flip_rgb_vertical.dim.largura = imrgb.dim.largura;
-    alocarRGB(flip_rgb_vertical.dim.altura, flip_rgb_vertical.dim.largura, &(flip_rgb_vertical.pixels));
-
-    // Chama a função ajustada
-    flip_vertical_rgb(&imrgb, &flip_rgb_vertical);
-
-    FILE *RGBFlip;
-    RGBFlip = fopen("utils/flip_rgb_vertical.txt", "w");
-    salvar_imagem_arkv_rgb(&flip_rgb_vertical, RGBFlip);
-
-    RGBFlip = fopen("utils/flip_rgb_vertical.txt", "r");
-    ler_imagem_arkv(RGBFlip, &flip_rgb_vertical_saida);
-    printImageColor(&flip_rgb_vertical_saida);
-    printf("\n\n\n");  
-
-    // #################################### FIM - flip_vertical_RGB ###########################################
-
-    // ################################### INICIO - flip_horizontal_rgb ######################################
-
-    ImageRGB flip_rgb_horizontal_saida;
-    flip_rgb_horizontal_saida.dim.altura = imrgb.dim.altura;
-    flip_rgb_horizontal_saida.dim.largura = imrgb.dim.largura;
-    alocarRGB(flip_rgb_horizontal_saida.dim.altura, flip_rgb_horizontal_saida.dim.largura, &(flip_rgb_horizontal_saida.pixels));
-
-    flip_horizontal_rgb(&imrgb, &flip_rgb_horizontal_saida);
-    FILE *RGBFlipHorizontal;
-    RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "w");
-    salvar_imagem_arkv_rgb(&flip_rgb_horizontal_saida, RGBFlipHorizontal);
-
-    RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "r");
-    ler_imagem_arkv(RGBFlipHorizontal, &flip_rgb_horizontal_saida);
-    printImageColor(&flip_rgb_horizontal_saida);
-    printf("\n\n\n");
-
-
-    // ################################### FIM - flip_horizontal_rgb ######################################
-
+    ImageGray imgray;
     converter_para_gray(&imrgb, &imgray);
 
     FILE *GrayExample;
@@ -148,118 +43,179 @@ int main() {
     printf("\n\n\n");
 
 
-    // #################################### INÍCIO - TRANSPOSE_GRAY ###########################################
+    aplicar_transpose_gray(&imgray);
+    aplicar_clahe_gray(&imgray);
+    aplicar_blur_gray(&imgray);
+    aplicar_flip_vertical_gray(&imgray);
+    system("pause");
 
-    ImageRGB transpose_gray_saida;
-    transpose_gray_var.dim.altura = imgray.dim.altura;
-    transpose_gray_var.dim.largura = imgray.dim.largura;
+    return 0;
+}
+
+void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb) {
+    ler_imagem_arkv(arq, imrgb);
+    printImageColor(imrgb);
+    printf("\n\n\n");
+}
+
+void aplicar_blur_rgb(ImageRGB *imrgb) {
+    ImageRGB blur_rgb;
+    blur_rgb.dim.altura = imrgb->dim.altura;
+    blur_rgb.dim.largura = imrgb->dim.largura;
+    alocarRGB(blur_rgb.dim.altura, blur_rgb.dim.largura, &(blur_rgb.pixels));
+
+    blur_rgb = *median_blur_rgb(imrgb, 15);
+
+    FILE *RGBBlur = fopen("utils/blur_rgb.txt", "w");
+    salvar_imagem_arkv_rgb(&blur_rgb, RGBBlur);
+    
+    RGBBlur = fopen("utils/blur_rgb.txt", "r");
+    ImageRGB img_saida_blur_rgb;
+    ler_imagem_arkv(RGBBlur, &img_saida_blur_rgb);
+    printImageColor(&img_saida_blur_rgb);
+    printf("\n\n\n");
+}
+
+void aplicar_clahe_rgb(ImageRGB *imrgb) {
+    ImageRGB clahe_rgb_img;
+    clahe_rgb_img.dim.altura = imrgb->dim.altura;
+    clahe_rgb_img.dim.largura = imrgb->dim.largura;
+    alocarRGB(clahe_rgb_img.dim.altura, clahe_rgb_img.dim.largura, &(clahe_rgb_img.pixels));
+
+    clahe_rgb_img = *clahe_rgb(imrgb, 256, 40);
+
+    FILE *RGBClahe = fopen("utils/clahe_rgb.txt", "w");
+    salvar_imagem_arkv_rgb(&clahe_rgb_img, RGBClahe);
+    
+    RGBClahe = fopen("utils/clahe_rgb.txt", "r");
+    ImageRGB img_saida_clahe_rgb;
+    ler_imagem_arkv(RGBClahe, &img_saida_clahe_rgb);
+    printImageColor(&img_saida_clahe_rgb);
+    printf("\n\n\n");
+}
+
+void aplicar_transpose_rgb(ImageRGB *imrgb) {
+    ImageRGB transpose_rgb_var;
+    transpose_rgb_var.dim.altura = imrgb->dim.altura;
+    transpose_rgb_var.dim.largura = imrgb->dim.largura;
+    alocarRGB(transpose_rgb_var.dim.altura, transpose_rgb_var.dim.largura, &(transpose_rgb_var.pixels));
+
+    transpose_rgb(imrgb, &transpose_rgb_var);
+
+    FILE *transporgb = fopen("utils/transpose_rgb.txt", "w");
+    salvar_imagem_arkv_rgb(&transpose_rgb_var, transporgb);
+    
+    transporgb = fopen("utils/transpose_rgb.txt", "r");
+    ImageRGB img_saida_transpose_rgb;
+    ler_imagem_arkv(transporgb, &img_saida_transpose_rgb);
+    printImageColor(&img_saida_transpose_rgb);
+    printf("\n\n\n");
+}
+
+void aplicar_flip_vertical_rgb(ImageRGB *imrgb) {
+    ImageRGB flip_rgb_vertical;
+    flip_rgb_vertical.dim.altura = imrgb->dim.altura;
+    flip_rgb_vertical.dim.largura = imrgb->dim.largura;
+    alocarRGB(flip_rgb_vertical.dim.altura, flip_rgb_vertical.dim.largura, &(flip_rgb_vertical.pixels));
+
+    flip_vertical_rgb(imrgb, &flip_rgb_vertical);
+
+    FILE *RGBFlip = fopen("utils/flip_rgb_vertical.txt", "w");
+    salvar_imagem_arkv_rgb(&flip_rgb_vertical, RGBFlip);
+    
+    RGBFlip = fopen("utils/flip_rgb_vertical.txt", "r");
+    ImageRGB flip_rgb_vertical_saida;
+    ler_imagem_arkv(RGBFlip, &flip_rgb_vertical_saida);
+    printImageColor(&flip_rgb_vertical_saida);
+    printf("\n\n\n");
+}
+
+void aplicar_flip_horizontal_rgb(ImageRGB *imrgb) {
+    ImageRGB flip_rgb_horizontal;
+    flip_rgb_horizontal.dim.altura = imrgb->dim.altura;
+    flip_rgb_horizontal.dim.largura = imrgb->dim.largura;
+    alocarRGB(flip_rgb_horizontal.dim.altura, flip_rgb_horizontal.dim.largura, &(flip_rgb_horizontal.pixels));
+
+    flip_horizontal_rgb(imrgb, &flip_rgb_horizontal);
+
+    FILE *RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "w");
+    salvar_imagem_arkv_rgb(&flip_rgb_horizontal, RGBFlipHorizontal);
+    
+    RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "r");
+    ImageRGB flip_rgb_horizontal_saida;
+    ler_imagem_arkv(RGBFlipHorizontal, &flip_rgb_horizontal_saida);
+    printImageColor(&flip_rgb_horizontal_saida);
+    printf("\n\n\n");
+}
+
+void aplicar_transpose_gray(ImageGray *imgray) {
+    ImageGray transpose_gray_var;
+    transpose_gray_var.dim.altura = imgray->dim.altura;
+    transpose_gray_var.dim.largura = imgray->dim.largura;
     alocarGray(transpose_gray_var.dim.altura, transpose_gray_var.dim.largura, &(transpose_gray_var.pixels));
 
-    transpose_gray(&imgray, &transpose_gray_var);
-    FILE *transpogray;
-    transpogray = fopen("utils/transpose_gray.txt", "w");
-    salvar_imagem_arkv(&transpose_gray_var, transpogray);
+    transpose_gray(imgray, &transpose_gray_var);
 
+    FILE *transpogray = fopen("utils/transpose_gray.txt", "w");
+    salvar_imagem_arkv(&transpose_gray_var, transpogray);
+    
     transpogray = fopen("utils/transpose_gray.txt", "r");
+    ImageRGB transpose_gray_saida;
     ler_imagem_arkv(transpogray, &transpose_gray_saida);
     printImageColor(&transpose_gray_saida);
     printf("\n\n\n");
+}
 
-
-    // #################################### FIM - TRANSPOSE_GRAY ###########################################
-
-    // #################################### INICIO - CLAHE_GRAY ###########################################
-
-    ImageRGB img_clahe_gray_saida;
-
-    // Inicializa clahe_gray
+void aplicar_clahe_gray(ImageGray *imgray) {
     ImageGray clahe_gray_saida;
-    clahe_gray_saida.dim.altura = imgray.dim.altura;
-    clahe_gray_saida.dim.largura = imgray.dim.largura;
+    clahe_gray_saida.dim.altura = imgray->dim.altura;
+    clahe_gray_saida.dim.largura = imgray->dim.largura;
     alocarGray(clahe_gray_saida.dim.altura, clahe_gray_saida.dim.largura, &(clahe_gray_saida.pixels));
 
-    // Chama a função ajustada
-    clahe_gray_saida = *clahe_gray(&imgray, 256, 90);
+    clahe_gray_saida = *clahe_gray(imgray, 256, 90);
 
-    FILE *GrayClahe;
-    GrayClahe = fopen("utils/clahe_gray.txt", "w");
+    FILE *GrayClahe = fopen("utils/clahe_gray.txt", "w");
     salvar_imagem_arkv(&clahe_gray_saida, GrayClahe);
-
+    
     GrayClahe = fopen("utils/clahe_gray.txt", "r");
+    ImageRGB img_clahe_gray_saida;
     ler_imagem_arkv(GrayClahe, &img_clahe_gray_saida);
     printImageColor(&img_clahe_gray_saida);
     printf("\n\n\n");
+}
 
-
-    // #################################### FIM - CLAHE_GRAY ###########################################
-
-
-    // #################################### INICIO - BLUR_GRAY ###########################################
-    ImageRGB img_blur_gray_saida;
-
-    // Inicializa blur_gray
-    blur_gray.dim.altura = imgray.dim.altura;
-    blur_gray.dim.largura = imgray.dim.largura;
+void aplicar_blur_gray(ImageGray *imgray) {
+    ImageGray blur_gray;
+    blur_gray.dim.altura = imgray->dim.altura;
+    blur_gray.dim.largura = imgray->dim.largura;
     alocarGray(blur_gray.dim.altura, blur_gray.dim.largura, &(blur_gray.pixels));
 
-    // Chama a função ajustada
-    blur_gray = *median_blur_gray(&imgray, 15);
+    blur_gray = *median_blur_gray(imgray, 15);
 
-    FILE *GrayBlur;
-    GrayBlur = fopen("utils/blur_gray.txt", "w");
+    FILE *GrayBlur = fopen("utils/blur_gray.txt", "w");
     salvar_imagem_arkv(&blur_gray, GrayBlur);
-
+    
     GrayBlur = fopen("utils/blur_gray.txt", "r");
+    ImageRGB img_blur_gray_saida;
     ler_imagem_arkv(GrayBlur, &img_blur_gray_saida);
     printImageColor(&img_blur_gray_saida);
     printf("\n\n\n");
-
-    // #################################### FIM - BLUR_GRAY ###########################################
-
-    // #################################### INICIO - flip_vertical_gray ###########################################
-
-    ImageRGB flip_gray_vertical_saida;
-    // Inicializa flip_gray_vertical
-    flip_gray_vertical.dim.altura = imgray.dim.altura;
-    flip_gray_vertical.dim.largura = imgray.dim.largura;
-    alocarGray(flip_gray_vertical.dim.altura, flip_gray_vertical.dim.largura, &(flip_gray_vertical.pixels));
-
-    // Chama a função ajustada
-    flip_vertical_gray(&imgray, &flip_gray_vertical);
-
-    FILE *GrayFlip;
-    GrayFlip = fopen("utils/flip_gray_vertical.txt", "w");
-    salvar_imagem_arkv(&flip_gray_vertical, GrayFlip);
-
-    GrayFlip = fopen("utils/flip_gray_vertical.txt", "r");
-    ler_imagem_arkv(GrayFlip, &flip_gray_vertical_saida);
-    printImageColor(&flip_gray_vertical_saida);
-    printf("\n\n\n");
-
-    // #################################### FIM - flip_vertical_gray ###########################################
-
-
-
-    system("pause");
-    // free_image_gray(&blur_gray);
-    // free_image_rgb(&blur_rgb);
-    // free_image_rgb(&flip_rgb_vertical);
-    // free_image_gray(&imgray);
-    // free_image_rgb(&imrgb);
-    // free_image_gray(&flip_gray_vertical);
-    // free_image_rgb(&transporgb);
-    // free_image_gray(&transpogray);
-
-    return 0;
-
 }
 
+void aplicar_flip_vertical_gray(ImageGray *imgray) {
+    ImageGray flip_gray_vertical;
+    flip_gray_vertical.dim.altura = imgray->dim.altura;
+    flip_gray_vertical.dim.largura = imgray->dim.largura;
+    alocarGray(flip_gray_vertical.dim.altura, flip_gray_vertical.dim.largura, &(flip_gray_vertical.pixels));
 
+    flip_vertical_gray(imgray, &flip_gray_vertical);
 
-
-
-
-
-
-
-
+    FILE *GrayFlipVertical = fopen("utils/flip_gray_vertical.txt", "w");
+    salvar_imagem_arkv(&flip_gray_vertical, GrayFlipVertical);
+    
+    GrayFlipVertical = fopen("utils/flip_gray_vertical.txt", "r");
+    ImageRGB img_flip_gray_vertical_saida;
+    ler_imagem_arkv(GrayFlipVertical, &img_flip_gray_vertical_saida);
+    printImageColor(&img_flip_gray_vertical_saida);
+    printf("\n\n\n");
+}
