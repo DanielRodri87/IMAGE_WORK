@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "image.h"
 
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb);
@@ -11,54 +13,201 @@ void aplicar_transpose_gray(ImageGray *imgray);
 void aplicar_clahe_gray(ImageGray *imgray);
 void aplicar_blur_gray(ImageGray *imgray);
 void aplicar_flip_vertical_gray(ImageGray *imgray);
+// void aplicar_flip_horizontal_gray(ImageGray *imgray);
+void exibir_resultado_rgb(int efeito);
+void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem);
 
-int main() {
+void mostrar_menu();
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem);
+
+
+int main()
+{
     FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
+    ImageRGB imrgb;
+    ImageGray imgray;
+    int opcao, efeito;
+    int contagem_efeitos_rgb = 0;
+    int contagem_efeitos_gray = 0;
+
     if (arq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
+
     system("pause");
-    ImageRGB imrgb;
     criar_imagem_rgb(arq, &imrgb);
 
-    aplicar_blur_rgb(&imrgb);
-    aplicar_clahe_rgb(&imrgb);
-    aplicar_transpose_rgb(&imrgb);
-    aplicar_flip_vertical_rgb(&imrgb);
-    aplicar_flip_horizontal_rgb(&imrgb);
+    while (1)
+    {
+        mostrar_menu();
+        printf("Digite a opcao desejada: ");
+        scanf("%d", &opcao);
 
-    system("pause");
+        switch (opcao)
+        {
+            case 1:
+                while (1)
+                {
+                    printf("Selecione o efeito que deseja aplicar:\n");
+                    printf("1 - Blur RGB\n2 - CLAHE RGB\n3 - Transpose RGB\n4 - Flip Vertical RGB\n5 - Flip Horizontal RGB\n6 - Concluir Aplicacao de Efeitos\n");
+                    printf("Digite a opcao desejada: ");
+                    scanf("%d", &efeito);
 
-    ImageGray imgray;
-    converter_para_gray(&imrgb, &imgray);
+                    if (efeito == 6) {
+                        printf("Aplicacao de efeitos concluída.\n");
+                        break;
+                    }
 
-    FILE *GrayExample;
-    GrayExample = fopen("utils/example_GRAY.txt", "w");
-    salvar_imagem_arkv(&imgray, GrayExample);
+                    contagem_efeitos_rgb++;
+                    aplicar_efeito_rgb(&imrgb, efeito, contagem_efeitos_rgb);
+                }
+                break;
+            case 2:
+                converter_para_gray(&imrgb, &imgray);
+                FILE *GrayExample;
+                GrayExample = fopen("utils/example_GRAY.txt", "w");
+                salvar_imagem_arkv(&imgray, GrayExample);
+                fclose(GrayExample);
+                break;
+            case 3:
+                while (1)
+                {
+                    printf("Selecione o efeito que deseja aplicar:\n");
+                    printf("1 - Blur Gray\n2 - CLAHE Gray\n3 - Transpose Gray\n4 - Flip Vertical Gray\n5 - Flip Horizontal Gray\n6 - Concluir Aplicacao de Efeitos\n");
+                    printf("Digite a opcao desejada: ");
+                    scanf("%d", &efeito);
 
-    GrayExample = fopen("utils/example_GRAY.txt", "r");
-    ler_imagem_arkv(GrayExample, &imrgb);
-    printImageColor(&imrgb);
-    printf("\n\n\n");
+                    if (efeito == 6) {
+                        printf("Aplicacao de efeitos concluída.\n");
+                        break;
+                    }
 
-
-    aplicar_transpose_gray(&imgray);
-    aplicar_clahe_gray(&imgray);
-    aplicar_blur_gray(&imgray);
-    aplicar_flip_vertical_gray(&imgray);
-    system("pause");
+                    contagem_efeitos_gray++;
+                    aplicar_efeito_gray(&imgray, efeito, contagem_efeitos_gray);
+                }
+                break;
+            case 4:
+                printf("Digite o número do efeito que deseja exibir: ");
+                scanf("%d", &efeito);
+                exibir_resultado_rgb(efeito);
+                break;
+            case 5:
+                printf("Saindo do programa...\n");
+                return 0;
+            default:
+                printf("Opcao inválida\n");
+                break;
+        }
+    }
 
     return 0;
 }
 
-void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb) {
+void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
+{
     ler_imagem_arkv(arq, imrgb);
     printImageColor(imrgb);
     printf("\n\n\n");
 }
 
-void aplicar_blur_rgb(ImageRGB *imrgb) {
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem)
+{
+    char filename[50];
+    snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", contagem);
+
+    switch (efeito) {
+        case 1:
+            printf("Aplicando Blur RGB\n");
+            aplicar_blur_rgb(imrgb);
+            break;
+        case 2:
+            printf("Aplicando CLAHE RGB\n");
+            aplicar_clahe_rgb(imrgb);
+            break;
+        case 3:
+            printf("Aplicando Transpose RGB\n");
+            aplicar_transpose_rgb(imrgb);
+            break;
+        case 4:
+            printf("Aplicando Flip Vertical RGB\n");
+            aplicar_flip_vertical_rgb(imrgb);
+            break;
+        case 5:
+            printf("Aplicando Flip Horizontal RGB\n");
+            aplicar_flip_horizontal_rgb(imrgb);
+            break;
+        default:
+            printf("Opcao de efeito inválida\n");
+            return;
+    }
+
+    FILE *imagemFinal = fopen(filename, "w");
+    if (imagemFinal == NULL) {
+        printf("Erro ao salvar o arquivo.\n");
+        return;
+    }
+    salvar_imagem_arkv_rgb(imrgb, imagemFinal);
+    fclose(imagemFinal);
+    printf("Imagem salva em '%s'\n", filename);
+}
+
+void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem)
+{
+    char filename[50];
+    snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", contagem);
+
+    switch (efeito) {
+        case 1:
+            printf("Aplicando Blur Gray\n");
+            aplicar_blur_gray(imgray);
+            break;
+        case 2:
+            printf("Aplicando CLAHE Gray\n");
+            aplicar_clahe_gray(imgray);
+            break;
+        case 3:
+            printf("Aplicando Transpose Gray\n");
+            aplicar_transpose_gray(imgray);
+            break;
+        case 4:
+            printf("Aplicando Flip Vertical Gray\n");
+            aplicar_flip_vertical_gray(imgray);
+            break;
+        case 5:
+            printf("Aplicando Flip Horizontal Gray\n");
+            // aplicar_flip_horizontal_gray(imgray);
+            break;
+        default:
+            printf("Opcao de efeito inválida\n");
+            return;
+    }
+
+    FILE *imagemFinal = fopen(filename, "w");
+    if (imagemFinal == NULL) {
+        printf("Erro ao salvar o arquivo.\n");
+        return;
+    }
+    salvar_imagem_arkv(imgray, imagemFinal);
+    fclose(imagemFinal);
+    printf("Imagem salva em '%s'\n", filename);
+}
+
+void mostrar_menu()
+{
+    printf("========================================\n");
+    printf("          EDITOR DE IMAGENS UFHOTOPI    \n");
+    printf("========================================\n");
+    printf("1 - Aplicar Efeitos RGB\n");
+    printf("2 - Converter para Preto e Branco\n");
+    printf("3 - Aplicar Efeitos Preto e Branco\n");
+    printf("4 - Exibir Resultado\n");
+    printf("5 - Sair\n");
+    printf("========================================\n");
+}
+
+void aplicar_blur_rgb(ImageRGB *imrgb)
+{
     ImageRGB blur_rgb;
     blur_rgb.dim.altura = imrgb->dim.altura;
     blur_rgb.dim.largura = imrgb->dim.largura;
@@ -66,17 +215,11 @@ void aplicar_blur_rgb(ImageRGB *imrgb) {
 
     blur_rgb = *median_blur_rgb(imrgb, 15);
 
-    FILE *RGBBlur = fopen("utils/blur_rgb.txt", "w");
-    salvar_imagem_arkv_rgb(&blur_rgb, RGBBlur);
-    
-    RGBBlur = fopen("utils/blur_rgb.txt", "r");
-    ImageRGB img_saida_blur_rgb;
-    ler_imagem_arkv(RGBBlur, &img_saida_blur_rgb);
-    printImageColor(&img_saida_blur_rgb);
-    printf("\n\n\n");
+    *imrgb = blur_rgb;
 }
 
-void aplicar_clahe_rgb(ImageRGB *imrgb) {
+void aplicar_clahe_rgb(ImageRGB *imrgb)
+{
     ImageRGB clahe_rgb_img;
     clahe_rgb_img.dim.altura = imrgb->dim.altura;
     clahe_rgb_img.dim.largura = imrgb->dim.largura;
@@ -84,17 +227,11 @@ void aplicar_clahe_rgb(ImageRGB *imrgb) {
 
     clahe_rgb_img = *clahe_rgb(imrgb, 256, 40);
 
-    FILE *RGBClahe = fopen("utils/clahe_rgb.txt", "w");
-    salvar_imagem_arkv_rgb(&clahe_rgb_img, RGBClahe);
-    
-    RGBClahe = fopen("utils/clahe_rgb.txt", "r");
-    ImageRGB img_saida_clahe_rgb;
-    ler_imagem_arkv(RGBClahe, &img_saida_clahe_rgb);
-    printImageColor(&img_saida_clahe_rgb);
-    printf("\n\n\n");
+    *imrgb = clahe_rgb_img;
 }
 
-void aplicar_transpose_rgb(ImageRGB *imrgb) {
+void aplicar_transpose_rgb(ImageRGB *imrgb)
+{
     ImageRGB transpose_rgb_var;
     transpose_rgb_var.dim.altura = imrgb->dim.altura;
     transpose_rgb_var.dim.largura = imrgb->dim.largura;
@@ -102,17 +239,11 @@ void aplicar_transpose_rgb(ImageRGB *imrgb) {
 
     transpose_rgb(imrgb, &transpose_rgb_var);
 
-    FILE *transporgb = fopen("utils/transpose_rgb.txt", "w");
-    salvar_imagem_arkv_rgb(&transpose_rgb_var, transporgb);
-    
-    transporgb = fopen("utils/transpose_rgb.txt", "r");
-    ImageRGB img_saida_transpose_rgb;
-    ler_imagem_arkv(transporgb, &img_saida_transpose_rgb);
-    printImageColor(&img_saida_transpose_rgb);
-    printf("\n\n\n");
+    *imrgb = transpose_rgb_var;
 }
 
-void aplicar_flip_vertical_rgb(ImageRGB *imrgb) {
+void aplicar_flip_vertical_rgb(ImageRGB *imrgb)
+{
     ImageRGB flip_rgb_vertical;
     flip_rgb_vertical.dim.altura = imrgb->dim.altura;
     flip_rgb_vertical.dim.largura = imrgb->dim.largura;
@@ -120,17 +251,11 @@ void aplicar_flip_vertical_rgb(ImageRGB *imrgb) {
 
     flip_vertical_rgb(imrgb, &flip_rgb_vertical);
 
-    FILE *RGBFlip = fopen("utils/flip_rgb_vertical.txt", "w");
-    salvar_imagem_arkv_rgb(&flip_rgb_vertical, RGBFlip);
-    
-    RGBFlip = fopen("utils/flip_rgb_vertical.txt", "r");
-    ImageRGB flip_rgb_vertical_saida;
-    ler_imagem_arkv(RGBFlip, &flip_rgb_vertical_saida);
-    printImageColor(&flip_rgb_vertical_saida);
-    printf("\n\n\n");
+    *imrgb = flip_rgb_vertical;
 }
 
-void aplicar_flip_horizontal_rgb(ImageRGB *imrgb) {
+void aplicar_flip_horizontal_rgb(ImageRGB *imrgb)
+{
     ImageRGB flip_rgb_horizontal;
     flip_rgb_horizontal.dim.altura = imrgb->dim.altura;
     flip_rgb_horizontal.dim.largura = imrgb->dim.largura;
@@ -138,17 +263,27 @@ void aplicar_flip_horizontal_rgb(ImageRGB *imrgb) {
 
     flip_horizontal_rgb(imrgb, &flip_rgb_horizontal);
 
-    FILE *RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "w");
-    salvar_imagem_arkv_rgb(&flip_rgb_horizontal, RGBFlipHorizontal);
-    
-    RGBFlipHorizontal = fopen("utils/flip_rgb_horizontal.txt", "r");
-    ImageRGB flip_rgb_horizontal_saida;
-    ler_imagem_arkv(RGBFlipHorizontal, &flip_rgb_horizontal_saida);
-    printImageColor(&flip_rgb_horizontal_saida);
-    printf("\n\n\n");
+    *imrgb = flip_rgb_horizontal;
 }
 
-void aplicar_transpose_gray(ImageGray *imgray) {
+void exibir_resultado_rgb(int efeito)
+{
+    char filename[50];
+    snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", efeito);
+
+    FILE *imagemFinal = fopen(filename, "r");
+    if (imagemFinal == NULL) {
+        printf("Erro ao abrir o arquivo da imagem final.\n");
+        return;
+    }
+    ImageRGB img_final;
+    ler_imagem_arkv(imagemFinal, &img_final);
+    printImageColor(&img_final);
+    fclose(imagemFinal);
+}
+
+void aplicar_transpose_gray(ImageGray *imgray)
+{
     ImageGray transpose_gray_var;
     transpose_gray_var.dim.altura = imgray->dim.altura;
     transpose_gray_var.dim.largura = imgray->dim.largura;
@@ -156,17 +291,11 @@ void aplicar_transpose_gray(ImageGray *imgray) {
 
     transpose_gray(imgray, &transpose_gray_var);
 
-    FILE *transpogray = fopen("utils/transpose_gray.txt", "w");
-    salvar_imagem_arkv(&transpose_gray_var, transpogray);
-    
-    transpogray = fopen("utils/transpose_gray.txt", "r");
-    ImageRGB transpose_gray_saida;
-    ler_imagem_arkv(transpogray, &transpose_gray_saida);
-    printImageColor(&transpose_gray_saida);
-    printf("\n\n\n");
+    *imgray = transpose_gray_var;
 }
 
-void aplicar_clahe_gray(ImageGray *imgray) {
+void aplicar_clahe_gray(ImageGray *imgray)
+{
     ImageGray clahe_gray_saida;
     clahe_gray_saida.dim.altura = imgray->dim.altura;
     clahe_gray_saida.dim.largura = imgray->dim.largura;
@@ -174,17 +303,11 @@ void aplicar_clahe_gray(ImageGray *imgray) {
 
     clahe_gray_saida = *clahe_gray(imgray, 256, 90);
 
-    FILE *GrayClahe = fopen("utils/clahe_gray.txt", "w");
-    salvar_imagem_arkv(&clahe_gray_saida, GrayClahe);
-    
-    GrayClahe = fopen("utils/clahe_gray.txt", "r");
-    ImageRGB img_clahe_gray_saida;
-    ler_imagem_arkv(GrayClahe, &img_clahe_gray_saida);
-    printImageColor(&img_clahe_gray_saida);
-    printf("\n\n\n");
+    *imgray = clahe_gray_saida;
 }
 
-void aplicar_blur_gray(ImageGray *imgray) {
+void aplicar_blur_gray(ImageGray *imgray)
+{
     ImageGray blur_gray;
     blur_gray.dim.altura = imgray->dim.altura;
     blur_gray.dim.largura = imgray->dim.largura;
@@ -192,17 +315,11 @@ void aplicar_blur_gray(ImageGray *imgray) {
 
     blur_gray = *median_blur_gray(imgray, 15);
 
-    FILE *GrayBlur = fopen("utils/blur_gray.txt", "w");
-    salvar_imagem_arkv(&blur_gray, GrayBlur);
-    
-    GrayBlur = fopen("utils/blur_gray.txt", "r");
-    ImageRGB img_blur_gray_saida;
-    ler_imagem_arkv(GrayBlur, &img_blur_gray_saida);
-    printImageColor(&img_blur_gray_saida);
-    printf("\n\n\n");
+    *imgray = blur_gray;
 }
 
-void aplicar_flip_vertical_gray(ImageGray *imgray) {
+void aplicar_flip_vertical_gray(ImageGray *imgray)
+{
     ImageGray flip_gray_vertical;
     flip_gray_vertical.dim.altura = imgray->dim.altura;
     flip_gray_vertical.dim.largura = imgray->dim.largura;
@@ -210,12 +327,10 @@ void aplicar_flip_vertical_gray(ImageGray *imgray) {
 
     flip_vertical_gray(imgray, &flip_gray_vertical);
 
-    FILE *GrayFlipVertical = fopen("utils/flip_gray_vertical.txt", "w");
-    salvar_imagem_arkv(&flip_gray_vertical, GrayFlipVertical);
-    
-    GrayFlipVertical = fopen("utils/flip_gray_vertical.txt", "r");
-    ImageRGB img_flip_gray_vertical_saida;
-    ler_imagem_arkv(GrayFlipVertical, &img_flip_gray_vertical_saida);
-    printImageColor(&img_flip_gray_vertical_saida);
-    printf("\n\n\n");
+    *imgray = flip_gray_vertical;
 }
+
+// void aplicar_flip_horizontal_gray(ImageGray *imgray)
+// {
+
+// }
