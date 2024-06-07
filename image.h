@@ -43,7 +43,8 @@ void free_image_rgb(ImageRGB *image); // Daniel                          | Ok
 
 // Operações para ImageGray
 void flip_vertical_gray(ImageGray *image, ImageGray *flipped_image); // Ok
-void flip_horizontal_gray(ImageGray *image, ImageGray *flipped_image); // Pedro Henrique
+
+void flip_horizontal_gray(ImageGray *image, ImageGray *flipped_image); // Rita      | OK
 
 void transpose_gray(const ImageGray *image, ImageGray *transposed_image); // Rita    |  OK
 
