@@ -152,6 +152,7 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem)
     printf("Imagem salva em '%s'\n", filename);
 }
 
+
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem)
 {
     char filename[50];

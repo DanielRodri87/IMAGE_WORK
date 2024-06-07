@@ -71,9 +71,8 @@ def image_rgb_from_txt(txt_path, output_path):
 
 
 def main():
-    txt_from_image_rgb('utils/example64.png', 'example64.txt')
-    txt_from_image_rgb('utils/example128.png', 'example128.txt')
-    txt_from_image_rgb('utils/example256.png', 'example256.txt')
+
+    image_rgb_from_txt("utils/imagem_final4.txt", "image_rgb.png")
 
 
 if __name__ == "__main__":
