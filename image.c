@@ -98,7 +98,6 @@ void free_image_gray(ImageGray *image) {
     }
 }
 
-// testando....
 
 
 ImageRGB *create_image_rgb(int largura, int altura)

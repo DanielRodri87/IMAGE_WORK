@@ -3,6 +3,8 @@
 #include <string.h>
 #include "image.h"
 
+
+// Aqui vai necessitar um novo.h
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb);
 void aplicar_blur_rgb(ImageRGB *imrgb);
 void aplicar_clahe_rgb(ImageRGB *imrgb);
