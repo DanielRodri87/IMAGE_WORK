@@ -51,8 +51,8 @@ void transpose_gray(const ImageGray *image, ImageGray *transposed_image); // Rit
 // Operações para ImageRGB
 void flip_vertical_rgb(ImageRGB *image, ImageRGB *flipped_image); // Daniel          |  OK
 
-void flip_horizontal_rgb(ImageRGB *image, ImageRGB *flipped_image); // Pedro Henrique
-void transpose_rgb(const ImageRGB *image, ImageRGB *transposed_image); // Rita 
+void flip_horizontal_rgb(ImageRGB *image, ImageRGB *flipped_image); // Pedro Henrique  | Ok
+void transpose_rgb(const ImageRGB *image, ImageRGB *transposed_image); // Rita         |
 
 // Manipulação por pixel para ImageGray
 ImageGray *clahe_gray(ImageGray *img, int num_bins, int limite); // Daniel     | OK
