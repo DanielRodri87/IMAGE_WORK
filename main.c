@@ -13,14 +13,13 @@ void aplicar_transpose_gray(ImageGray *imgray);
 void aplicar_clahe_gray(ImageGray *imgray);
 void aplicar_blur_gray(ImageGray *imgray);
 void aplicar_flip_vertical_gray(ImageGray *imgray);
-
 void aplicar_flip_horizontal_gray(ImageGray *imgray);
 void exibir_resultado_rgb(int efeito);
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem);
-
 void mostrar_menu();
 void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem);
 
+void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
 
 int main()
 {
@@ -36,8 +35,8 @@ int main()
         return 1;
     }
 
-    system("pause");
     criar_imagem_rgb(arq, &imrgb);
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/output_image_example_RGB.png");
 
     while (1)
     {
@@ -70,6 +69,7 @@ int main()
                 GrayExample = fopen("utils/example_GRAY.txt", "w");
                 salvar_imagem_arkv(&imgray, GrayExample);
                 fclose(GrayExample);
+                chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/example_GRAY.txt", "utils/output_example_GRAY.png");
                 break;
             case 3:
                 while (1)
@@ -108,14 +108,16 @@ int main()
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 {
     ler_imagem_arkv(arq, imrgb);
-    printImageColor(imrgb);
-    printf("\n\n\n");
+    // Chamar a função Python para exibir a imagem original
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/output_image_example_RGB.png");
 }
 
 void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem)
 {
-    char filename[50];
-    snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", contagem);
+    char txt_filename[50];
+    char output_filename[50];
+    snprintf(txt_filename, sizeof(txt_filename), "utils/imagem_final%d.txt", contagem);
+    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
 
     switch (efeito) {
         case 1:
@@ -143,21 +145,28 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem)
             return;
     }
 
-    FILE *imagemFinal = fopen(filename, "w");
+    FILE *imagemFinal = fopen(txt_filename, "w");
     if (imagemFinal == NULL) {
         printf("Erro ao salvar o arquivo.\n");
         return;
     }
     salvar_imagem_arkv_rgb(imrgb, imagemFinal);
     fclose(imagemFinal);
-    printf("Imagem salva em '%s'\n", filename);
+    printf("Imagem salva em '%s'\n", txt_filename);
+
+    // Chamar o Python para converter o arquivo txt em imagem apenas quando necessário
+    if (efeito != 6) {
+        chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
+    }
 }
 
 
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem)
 {
-    char filename[50];
-    snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", contagem);
+    char txt_filename[50];
+    char output_filename[50];
+    snprintf(txt_filename, sizeof(txt_filename), "utils/imagem_final%d.txt", contagem);
+    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
 
     switch (efeito) {
         case 1:
@@ -185,14 +194,16 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem)
             return;
     }
 
-    FILE *imagemFinal = fopen(filename, "w");
+    FILE *imagemFinal = fopen(txt_filename, "w");
     if (imagemFinal == NULL) {
         printf("Erro ao salvar o arquivo.\n");
         return;
     }
     salvar_imagem_arkv(imgray, imagemFinal);
     fclose(imagemFinal);
-    printf("Imagem salva em '%s'\n", filename);
+    printf("Imagem salva em '%s'\n", txt_filename);
+
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
 }
 
 void mostrar_menu()
@@ -207,6 +218,14 @@ void mostrar_menu()
     printf("5 - Sair\n");
     printf("========================================\n");
 }
+
+void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
+{
+    char command[256];
+    snprintf(command, sizeof(command), "python3 %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
+    system(command);
+}
+
 
 void aplicar_blur_rgb(ImageRGB *imrgb)
 {
@@ -271,7 +290,9 @@ void aplicar_flip_horizontal_rgb(ImageRGB *imrgb)
 void exibir_resultado_rgb(int efeito)
 {
     char filename[50];
+    char output_filename[50];
     snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", efeito);
+    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", efeito);
 
     FILE *imagemFinal = fopen(filename, "r");
     if (imagemFinal == NULL) {
@@ -280,8 +301,8 @@ void exibir_resultado_rgb(int efeito)
     }
     ImageRGB img_final;
     ler_imagem_arkv(imagemFinal, &img_final);
-    printImageColor(&img_final);
     fclose(imagemFinal);
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", filename, output_filename);
 }
 
 void aplicar_transpose_gray(ImageGray *imgray)
@@ -332,7 +353,8 @@ void aplicar_flip_vertical_gray(ImageGray *imgray)
     *imgray = flip_gray_vertical;
 }
 
-void aplicar_flip_horizontal_gray(ImageGray *imgray){
+void aplicar_flip_horizontal_gray(ImageGray *imgray)
+{
     ImageGray flip_gray_horizontal_var;
     flip_gray_horizontal_var.dim.altura = imgray->dim.altura;
     flip_gray_horizontal_var.dim.largura = imgray->dim.largura;
