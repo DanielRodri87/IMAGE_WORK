@@ -13,7 +13,8 @@ void aplicar_transpose_gray(ImageGray *imgray);
 void aplicar_clahe_gray(ImageGray *imgray);
 void aplicar_blur_gray(ImageGray *imgray);
 void aplicar_flip_vertical_gray(ImageGray *imgray);
-// void aplicar_flip_horizontal_gray(ImageGray *imgray);
+
+void aplicar_flip_horizontal_gray(ImageGray *imgray);
 void exibir_resultado_rgb(int efeito);
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem);
 
@@ -176,7 +177,7 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem)
             break;
         case 5:
             printf("Aplicando Flip Horizontal Gray\n");
-            // aplicar_flip_horizontal_gray(imgray);
+            aplicar_flip_horizontal_gray(imgray);
             break;
         default:
             printf("Opcao de efeito inválida\n");
@@ -330,7 +331,13 @@ void aplicar_flip_vertical_gray(ImageGray *imgray)
     *imgray = flip_gray_vertical;
 }
 
-// void aplicar_flip_horizontal_gray(ImageGray *imgray)
-// {
+void aplicar_flip_horizontal_gray(ImageGray *imgray){
+    ImageGray flip_gray_horizontal_var;
+    flip_gray_horizontal_var.dim.altura = imgray->dim.altura;
+    flip_gray_horizontal_var.dim.largura = imgray->dim.largura;
+    alocarGray(flip_gray_horizontal_var.dim.altura, flip_gray_horizontal_var.dim.largura, &(flip_gray_horizontal_var.pixels));
 
-// }
+    flip_horizontal_gray(imgray, &flip_gray_horizontal_var);
+
+    *imgray = flip_gray_horizontal_var;
+}
