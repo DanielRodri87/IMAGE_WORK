@@ -540,3 +540,100 @@ void flip_horizontal_gray(ImageGray *image, ImageGray *flipped_image)
         }
     }
 }
+// Função para criar o histórico de imagens
+ImageHistory *create_image_history() {
+    ImageHistory *history = (ImageHistory *)malloc(sizeof(ImageHistory));
+    if (!history) {
+        fprintf(stderr, "Erro ao alocar memória para o histórico de imagens.\n");
+        exit(1);
+    }
+    history->head = NULL;
+    history->tail = NULL;
+    return history;
+}
+
+// Função para adicionar uma imagem ao histórico
+void add_image_to_history(ImageHistory *history, void *image) {
+    ImageNode *new_node = (ImageNode *)malloc(sizeof(ImageNode));
+    if (!new_node) {
+        fprintf(stderr, "Erro ao alocar memória para o nó da imagem.\n");
+        exit(1);
+    }
+    new_node->image = image;
+    new_node->prev = history->tail;
+    new_node->next = NULL;
+
+    if (history->tail) {
+        history->tail->next = new_node;
+    } else {
+        history->head = new_node;
+    }
+    history->tail = new_node;
+}
+
+void desfazer_operacao(ImageHistory *history) {
+    if (history->head != NULL && history->current != NULL) {
+        // Verifica se a operação atual não é a mais antiga no histórico
+        if (history->current->prev != NULL) {
+            history->current = history->current->prev; // Move para a operação anterior no histórico
+            printf("Operacao desfeita.\n");
+            system("pause");
+        } else {
+            printf("Ja esta na operacao mais antiga.\n");
+            system("pause");
+        }
+    } else {
+        printf("Nao ha operacoes para desfazer.\n");
+        system("pause");
+    }
+}
+
+
+void refazer_operacao(ImageHistory *history) {
+    if (history->tail != NULL && history->tail->next != NULL) {
+        printf("Operacao refeita.\n");
+        system("pause");
+    } else {
+        printf("Nao ha operacoes para refazer.\n");
+        system("pause");
+    }
+}
+
+void ir_para_operacao_anterior(ImageHistory *history) {
+    if (history->current != NULL && history->current->prev != NULL) {
+        history->current = history->current->prev; // Move para a operação anterior no histórico
+        printf("Operacao anterior.\n");
+        system("pause");
+    } else {
+        printf("Ja esta na operacao mais antiga.\n");
+        system("pause");
+    }
+}
+
+void ir_para_proxima_operacao(ImageHistory *history) {
+    if (history->current != NULL && history->current->next != NULL) {
+        history->current = history->current->next; // Move para a próxima operação no histórico
+        printf("Indo para proxima operacao.\n");
+        system("pause");
+        
+    } else {
+        printf("Ja esta na operacao mais recente.\n");
+        system("pause");
+    }
+}
+
+void free_image_history(ImageHistory *history) {
+    ImageNode *current = history->head;
+    ImageNode *next_node;
+    while (current) {
+        next_node = current->next;
+        // Libere a imagem armazenada no nó
+        // Verifique o tipo da imagem antes de liberar
+        if (current->image) {
+            free(current->image);
+        }
+        free(current);
+        current = next_node;
+    }
+    free(history);
+}

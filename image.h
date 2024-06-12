@@ -67,4 +67,26 @@ void printPixelColor(int lin, int col, ImageRGB *img); // Daniel           | Ok
 void printImageColor(ImageRGB *img); // Rita                               | Ok
 void ler_imagem_arkv(FILE *arq, ImageRGB *img); // Daniel                  | Ok
 
+
+// Estrutura para armazenar o histórico de imagens
+typedef struct imageNode {
+    void *image; // Ponteiro genérico para ImageGray ou ImageRGB
+    struct imageNode *prev;
+    struct imageNode *next;
+} ImageNode;
+
+typedef struct {
+    ImageNode *head;
+    ImageNode *tail;
+    ImageNode *current; // operação atual
+} ImageHistory;
+
+// Funções para manipulação da lista duplamente encadeada
+ImageHistory *create_image_history();
+void add_image_to_history(ImageHistory *history, void *image);
+void desfazer_operacao(ImageHistory *history);
+void refazer_operacao(ImageHistory *history);
+void ir_para_operacao_anterior(ImageHistory *history);
+void ir_para_proxima_operacao(ImageHistory *history);
+void free_image_history(ImageHistory *history);
 #endif // IMAGE_H

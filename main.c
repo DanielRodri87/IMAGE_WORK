@@ -26,7 +26,7 @@ int main()
     FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
     ImageRGB imrgb;
     ImageGray imgray;
-    int opcao, efeito;
+    int opcao, opcao_lista, efeito;
     int contagem_efeitos_rgb = 0;
     int contagem_efeitos_gray = 0;
 
@@ -38,6 +38,7 @@ int main()
     criar_imagem_rgb(arq, &imrgb);
     chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/output_image_example_RGB.png");
 
+    ImageHistory *history = create_image_history();
     while (1)
     {
         mostrar_menu();
@@ -61,6 +62,7 @@ int main()
 
                     contagem_efeitos_rgb++;
                     aplicar_efeito_rgb(&imrgb, efeito, contagem_efeitos_rgb);
+                    add_image_to_history(history, &imrgb);
                 }
                 break;
             case 2:
@@ -86,6 +88,7 @@ int main()
 
                     contagem_efeitos_gray++;
                     aplicar_efeito_gray(&imgray, efeito, contagem_efeitos_gray);
+                    add_image_to_history(history, &imgray);
                 }
                 break;
             case 4:
@@ -94,6 +97,31 @@ int main()
                 exibir_resultado_rgb(efeito);
                 break;
             case 5:
+                printf("1 - Desfazer Operacao\n2 - Refazeer Operacao\n3 - Retornar a operaçao anterior\n4 - Seguir para a próxima Operacao\n");
+                printf("Digite a opcao desejada: ");
+                scanf("%d", &opcao_lista);
+
+                switch (opcao_lista)
+                {
+                    case 1:
+                        desfazer_operacao(history);
+                        break;
+                    case 2:
+                        refazer_operacao(history);
+                        break;
+                    case 3:
+                        ir_para_operacao_anterior(history);
+                        break;
+                    case 4:
+                        ir_para_proxima_operacao(history);
+                        break;
+                    default:
+                        printf("Opcao inválida no Gerenciar Lista\n");
+                        break;
+                }
+                break;
+            case 6:
+                free_image_history(history);
                 printf("Saindo do programa...\n");
                 return 0;
             default:
@@ -215,9 +243,11 @@ void mostrar_menu()
     printf("2 - Converter para Preto e Branco\n");
     printf("3 - Aplicar Efeitos Preto e Branco\n");
     printf("4 - Exibir Resultado\n");
-    printf("5 - Sair\n");
+    printf("5 - Gerenciar Lista\n");
+    printf("6 - Sair da aplicação\n");
     printf("========================================\n");
 }
+
 
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
 {
