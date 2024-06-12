@@ -18,6 +18,7 @@ void exibir_resultado_rgb(int efeito);
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem);
 void mostrar_menu();
 void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem);
+void abrir_imagem(const char *image_path);
 
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
 
@@ -36,7 +37,6 @@ int main()
     }
 
     criar_imagem_rgb(arq, &imrgb);
-    chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/output_image_example_RGB.png");
 
     ImageHistory *history = create_image_history();
     while (1)
@@ -68,10 +68,10 @@ int main()
             case 2:
                 converter_para_gray(&imrgb, &imgray);
                 FILE *GrayExample;
-                GrayExample = fopen("utils/example_GRAY.txt", "w");
+                GrayExample = fopen("utils/input_example_GRAY.txt", "w");
                 salvar_imagem_arkv(&imgray, GrayExample);
                 fclose(GrayExample);
-                chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/example_GRAY.txt", "utils/output_example_GRAY.png");
+                chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_example_GRAY.txt", "utils/output_example_GRAY.png");
                 break;
             case 3:
                 while (1)
@@ -92,9 +92,10 @@ int main()
                 }
                 break;
             case 4:
-                printf("Digite o número do efeito que deseja exibir: ");
+                printf("Quantos efeitos você aplicou: ");
                 scanf("%d", &efeito);
                 exibir_resultado_rgb(efeito);
+                abrir_imagem("image_rgb.png");
                 break;
             case 5:
                 printf("1 - Desfazer Operacao\n2 - Refazeer Operacao\n3 - Retornar a operaçao anterior\n4 - Seguir para a próxima Operacao\n");
@@ -136,25 +137,27 @@ int main()
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 {
     ler_imagem_arkv(arq, imrgb);
-    // Chamar a função Python para exibir a imagem original
     chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/output_image_example_RGB.png");
+    abrir_imagem("image_rgb.png");
 }
 
 void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem)
 {
     char txt_filename[50];
     char output_filename[50];
-    snprintf(txt_filename, sizeof(txt_filename), "utils/imagem_final%d.txt", contagem);
+    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final%d.txt", contagem); // Modificado para iniciar com "input_"
     snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
 
     switch (efeito) {
         case 1:
             printf("Aplicando Blur RGB\n");
             aplicar_blur_rgb(imrgb);
+
             break;
         case 2:
             printf("Aplicando CLAHE RGB\n");
             aplicar_clahe_rgb(imrgb);
+
             break;
         case 3:
             printf("Aplicando Transpose RGB\n");
@@ -193,7 +196,7 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem)
 {
     char txt_filename[50];
     char output_filename[50];
-    snprintf(txt_filename, sizeof(txt_filename), "utils/imagem_final%d.txt", contagem);
+    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final%d.txt", contagem); // Modificado para iniciar com "input_"
     snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
 
     switch (efeito) {
@@ -252,7 +255,7 @@ void mostrar_menu()
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
 {
     char command[256];
-    snprintf(command, sizeof(command), "python3 %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
+    snprintf(command, sizeof(command), "python %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
     system(command);
 }
 
@@ -393,4 +396,17 @@ void aplicar_flip_horizontal_gray(ImageGray *imgray)
     flip_horizontal_gray(imgray, &flip_gray_horizontal_var);
 
     *imgray = flip_gray_horizontal_var;
+
 }
+
+// Aqui irei fazer uma função que vai abrir fotos no windows
+void abrir_imagem(const char *image_path)
+{
+    char command[256];
+    snprintf(command, sizeof(command), "python utils/abrir_imagem_sistemas.py %s", image_path);
+    int ret = system(command);
+    if (ret != 0) {
+        printf("Erro ao abrir a imagem. Código de retorno: %d\n", ret);
+    }
+}
+
