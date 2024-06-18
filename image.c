@@ -88,15 +88,6 @@ ImageGray *create_image_gray(int largura, int altura) {
     }
     return image;
 }
-// libera o ponteiro pixels(caso n seja nulo) e libera a memória alocada para a estrutura  
-void free_image_gray(ImageGray *image) {
-    if (image) {
-        if (image->pixels) {
-            free(image->pixels);
-        }
-        free(image);
-    }
-}
 
 
 
@@ -131,6 +122,11 @@ void free_image_rgb(ImageRGB *image)
     free(image);
 }
 
+void free_image_gray(ImageGray *image)
+{
+    free(image->pixels);
+    free(image);
+}
 
 void flip_vertical_gray(ImageGray *image, ImageGray *flipped_image)
 {
@@ -540,100 +536,159 @@ void flip_horizontal_gray(ImageGray *image, ImageGray *flipped_image)
         }
     }
 }
+
+// ####################################33
+ImageRGB *copy_image_rgb(const ImageRGB *src) {
+    ImageRGB *copy = create_image_rgb(src->dim.largura, src->dim.altura);
+    for (int i = 0; i < src->dim.altura * src->dim.largura; i++) {
+        copy->pixels[i] = src->pixels[i];
+    }
+    return copy;
+}
+
+ImageGray *copy_image_gray(const ImageGray *src)
+{
+    ImageGray *copy = create_image_gray(src->dim.largura, src->dim.altura);
+    for (int i = 0; i < src->dim.altura * src->dim.largura; i++)
+    {
+        copy->pixels[i] = src->pixels[i];
+    }
+    return copy;
+
+}
+
+
 // Função para criar o histórico de imagens
 ImageHistory *create_image_history() {
     ImageHistory *history = (ImageHistory *)malloc(sizeof(ImageHistory));
-    if (!history) {
-        fprintf(stderr, "Erro ao alocar memória para o histórico de imagens.\n");
-        exit(1);
-    }
-    history->head = NULL;
-    history->tail = NULL;
+    history->current = NULL;
     return history;
 }
+ImageHistoryGray *create_image_history_gray()
+{
+    ImageHistoryGray *history = (ImageHistoryGray *)malloc(sizeof(ImageHistoryGray));
+    history->current = NULL;
+    return history;
+
+}
+
 
 // Função para adicionar uma imagem ao histórico
-void add_image_to_history(ImageHistory *history, void *image) {
-    ImageNode *new_node = (ImageNode *)malloc(sizeof(ImageNode));
-    if (!new_node) {
-        fprintf(stderr, "Erro ao alocar memória para o nó da imagem.\n");
-        exit(1);
-    }
-    new_node->image = image;
-    new_node->prev = history->tail;
+void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image) {
+    ImageHistoryNode *new_node = (ImageHistoryNode *)malloc(sizeof(ImageHistoryNode));
+    new_node->image = copy_image_rgb(image);
     new_node->next = NULL;
+    new_node->prev = history->current;
 
-    if (history->tail) {
-        history->tail->next = new_node;
-    } else {
-        history->head = new_node;
+    if (history->current != NULL) {
+        history->current->next = new_node;
     }
-    history->tail = new_node;
+    history->current = new_node;
 }
 
-void desfazer_operacao(ImageHistory *history) {
-    if (history->head != NULL && history->current != NULL) {
-        // Verifica se a operação atual não é a mais antiga no histórico
-        if (history->current->prev != NULL) {
-            history->current = history->current->prev; // Move para a operação anterior no histórico
-            printf("Operacao desfeita.\n");
-            system("pause");
-        } else {
-            printf("Ja esta na operacao mais antiga.\n");
-            system("pause");
-        }
-    } else {
-        printf("Nao ha operacoes para desfazer.\n");
-        system("pause");
+void add_image_to_history_gray(ImageHistoryGray *history, ImageGray *image)
+{
+    ImageHistoryNodeGray *new_node = (ImageHistoryNodeGray *)malloc(sizeof(ImageHistoryNodeGray));
+    new_node->image = copy_image_gray(image);
+    new_node->next = NULL;
+    new_node->prev = history->current;
+
+    if (history->current != NULL)
+    {
+        history->current->next = new_node;
     }
+    history->current = new_node;
 }
 
-
-void refazer_operacao(ImageHistory *history) {
-    if (history->tail != NULL && history->tail->next != NULL) {
-        printf("Operacao refeita.\n");
-        system("pause");
-    } else {
-        printf("Nao ha operacoes para refazer.\n");
-        system("pause");
+// Função para desfazer a última operação
+ImageRGB *undo_image_history_rgb(ImageHistory *history)
+{
+    if (history->current == NULL)
+    {
+        return NULL;
     }
+
+    ImageHistoryNode *current = history->current;
+    ImageHistoryNode *prev = current->prev;
+
+    if (prev != NULL)
+    {
+        prev->next = NULL;
+    }
+
+    history->current = prev;
+    ImageRGB *image = copy_image_rgb(current->image);
+    free_image_rgb(current->image);
+    free(current);
+
+    return image;
 }
 
-void ir_para_operacao_anterior(ImageHistory *history) {
-    if (history->current != NULL && history->current->prev != NULL) {
-        history->current = history->current->prev; // Move para a operação anterior no histórico
-        printf("Operacao anterior.\n");
-        system("pause");
-    } else {
-        printf("Ja esta na operacao mais antiga.\n");
-        system("pause");
+ImageRGB *redo_image_history_rgb(ImageHistory *history)
+{
+    if (history->current == NULL)
+    {
+        return NULL;
     }
+
+    ImageHistoryNode *current = history->current;
+    ImageHistoryNode *next = current->next;
+
+    if (next != NULL)
+    {
+        next->prev = NULL;
+    }
+
+    history->current = next;
+    ImageRGB *image = copy_image_rgb(current->image);
+    free_image_rgb(current->image);
+    free(current);
+
+    return image;
 }
 
-void ir_para_proxima_operacao(ImageHistory *history) {
-    if (history->current != NULL && history->current->next != NULL) {
-        history->current = history->current->next; // Move para a próxima operação no histórico
-        printf("Indo para proxima operacao.\n");
-        system("pause");
-        
-    } else {
-        printf("Ja esta na operacao mais recente.\n");
-        system("pause");
+ImageGray *undo_image_history_gray(ImageHistoryGray *history)
+{
+    if (history->current == NULL)
+    {
+        return NULL;
     }
+
+    ImageHistoryNodeGray *current = history->current;
+    ImageHistoryNodeGray *prev = current->prev;
+
+    if (prev != NULL)
+    {
+        prev->next = NULL;
+    }
+
+    history->current = prev;
+    ImageGray *image = copy_image_gray(current->image);
+    free_image_gray(current->image);
+    free(current);
+
+    return image;
 }
 
-void free_image_history(ImageHistory *history) {
-    ImageNode *current = history->head;
-    ImageNode *next_node;
-    while (current) {
-        next_node = current->next;
-        // Libere a imagem armazenada no nó
-        // Verifique o tipo da imagem antes de liberar
-        if (current->image) {
-            free(current->image);
-        }
-        free(current);
-        current = next_node;
+ImageGray *redo_image_history_gray(ImageHistoryGray *history)
+{
+    if (history->current == NULL)
+    {
+        return NULL;
     }
-    free(history);
+
+    ImageHistoryNodeGray *current = history->current;
+    ImageHistoryNodeGray *next = current->next;
+
+    if (next != NULL)
+    {
+        next->prev = NULL;
+    }
+
+    history->current = next;
+    ImageGray *image = copy_image_gray(current->image);
+    free_image_gray(current->image);
+    free(current);
+
+    return image;
 }
