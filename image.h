@@ -88,18 +88,14 @@ typedef struct imageHistoryGray {
     ImageHistoryNodeGray *current;
 } ImageHistoryGray;
 
-ImageHistory *create_image_history();
-ImageHistoryGray *create_image_history_gray();
-
-ImageRGB *copy_image_rgb(const ImageRGB *src);
-ImageGray *copy_image_gray(const ImageGray *src);
 
 void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image);
 void add_image_to_history_gray(ImageHistoryGray *history, ImageGray *image);
+void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+void refazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+void refazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+ImageHistory *create_image_history();
+ImageHistoryGray *create_image_history_gray();
 
-ImageRGB *undo_image_history_rgb(ImageHistory *history);
-ImageRGB *redo_image_history_rgb(ImageHistory *history);
-
-ImageGray *undo_image_history_gray(ImageHistoryGray *history);
-ImageGray *redo_image_history_gray(ImageHistoryGray *history);
 #endif // IMAGE_H

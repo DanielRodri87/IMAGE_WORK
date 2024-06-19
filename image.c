@@ -538,45 +538,11 @@ void flip_horizontal_gray(ImageGray *image, ImageGray *flipped_image)
 }
 
 // ####################################33
-ImageRGB *copy_image_rgb(const ImageRGB *src) {
-    ImageRGB *copy = create_image_rgb(src->dim.largura, src->dim.altura);
-    for (int i = 0; i < src->dim.altura * src->dim.largura; i++) {
-        copy->pixels[i] = src->pixels[i];
-    }
-    return copy;
-}
-
-ImageGray *copy_image_gray(const ImageGray *src)
+void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image)
 {
-    ImageGray *copy = create_image_gray(src->dim.largura, src->dim.altura);
-    for (int i = 0; i < src->dim.altura * src->dim.largura; i++)
-    {
-        copy->pixels[i] = src->pixels[i];
-    }
-    return copy;
-
-}
-
-
-// Função para criar o histórico de imagens
-ImageHistory *create_image_history() {
-    ImageHistory *history = (ImageHistory *)malloc(sizeof(ImageHistory));
-    history->current = NULL;
-    return history;
-}
-ImageHistoryGray *create_image_history_gray()
-{
-    ImageHistoryGray *history = (ImageHistoryGray *)malloc(sizeof(ImageHistoryGray));
-    history->current = NULL;
-    return history;
-
-}
-
-
-// Função para adicionar uma imagem ao histórico
-void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image) {
     ImageHistoryNode *new_node = (ImageHistoryNode *)malloc(sizeof(ImageHistoryNode));
-    new_node->image = copy_image_rgb(image);
+    new_node->image = create_image_rgb(image->dim.largura, image->dim.altura);
+    *new_node->image = *image;
     new_node->next = NULL;
     new_node->prev = history->current;
 
@@ -589,106 +555,67 @@ void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image) {
 void add_image_to_history_gray(ImageHistoryGray *history, ImageGray *image)
 {
     ImageHistoryNodeGray *new_node = (ImageHistoryNodeGray *)malloc(sizeof(ImageHistoryNodeGray));
-    new_node->image = copy_image_gray(image);
+    new_node->image = create_image_gray(image->dim.largura, image->dim.altura);
+    *new_node->image = *image;
     new_node->next = NULL;
     new_node->prev = history->current;
 
-    if (history->current != NULL)
-    {
+    if (history->current != NULL) {
         history->current->next = new_node;
     }
     history->current = new_node;
 }
 
-// Função para desfazer a última operação
-ImageRGB *undo_image_history_rgb(ImageHistory *history)
+void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb)
 {
-    if (history->current == NULL)
-    {
-        return NULL;
+    if (history->current == NULL || history->current->prev == NULL) {
+        printf("Nada para desfazer.\n");
+        return;
     }
-
-    ImageHistoryNode *current = history->current;
-    ImageHistoryNode *prev = current->prev;
-
-    if (prev != NULL)
-    {
-        prev->next = NULL;
-    }
-
-    history->current = prev;
-    ImageRGB *image = copy_image_rgb(current->image);
-    free_image_rgb(current->image);
-    free(current);
-
-    return image;
+    history->current = history->current->prev;
+    *imrgb = *history->current->image;
 }
 
-ImageRGB *redo_image_history_rgb(ImageHistory *history)
+void refazer_rgb(ImageHistory *history, ImageRGB *imrgb)
 {
-    if (history->current == NULL)
-    {
-        return NULL;
+    if (history->current == NULL || history->current->next == NULL) {
+        printf("Nada para refazer.\n");
+        return;
     }
-
-    ImageHistoryNode *current = history->current;
-    ImageHistoryNode *next = current->next;
-
-    if (next != NULL)
-    {
-        next->prev = NULL;
-    }
-
-    history->current = next;
-    ImageRGB *image = copy_image_rgb(current->image);
-    free_image_rgb(current->image);
-    free(current);
-
-    return image;
+    history->current = history->current->next;
+    *imrgb = *history->current->image;
 }
 
-ImageGray *undo_image_history_gray(ImageHistoryGray *history)
+void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray)
 {
-    if (history->current == NULL)
-    {
-        return NULL;
+    if (history->current == NULL || history->current->prev == NULL) {
+        printf("Nada para desfazer.\n");
+        return;
     }
-
-    ImageHistoryNodeGray *current = history->current;
-    ImageHistoryNodeGray *prev = current->prev;
-
-    if (prev != NULL)
-    {
-        prev->next = NULL;
-    }
-
-    history->current = prev;
-    ImageGray *image = copy_image_gray(current->image);
-    free_image_gray(current->image);
-    free(current);
-
-    return image;
+    history->current = history->current->prev;
+    *imgray = *history->current->image;
 }
 
-ImageGray *redo_image_history_gray(ImageHistoryGray *history)
+void refazer_gray(ImageHistoryGray *history, ImageGray *imgray)
 {
-    if (history->current == NULL)
-    {
-        return NULL;
+    if (history->current == NULL || history->current->next == NULL) {
+        printf("Nada para refazer.\n");
+        return;
     }
+    history->current = history->current->next;
+    *imgray = *history->current->image;
+}
 
-    ImageHistoryNodeGray *current = history->current;
-    ImageHistoryNodeGray *next = current->next;
+ImageHistory *create_image_history()
+{
+    ImageHistory *history = (ImageHistory *)malloc(sizeof(ImageHistory));
+    history->current = NULL;
+    return history;
+}
 
-    if (next != NULL)
-    {
-        next->prev = NULL;
-    }
-
-    history->current = next;
-    ImageGray *image = copy_image_gray(current->image);
-    free_image_gray(current->image);
-    free(current);
-
-    return image;
+ImageHistoryGray *create_image_history_gray()
+{
+    ImageHistoryGray *history = (ImageHistoryGray *)malloc(sizeof(ImageHistoryGray));
+    history->current = NULL;
+    return history;
 }

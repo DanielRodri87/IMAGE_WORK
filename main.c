@@ -45,6 +45,7 @@ int main()
     }
 
     criar_imagem_rgb(arq, &imrgb);
+    add_image_to_history_rgb(history_rgb, &imrgb);
     while (1)
     {
         mostrar_menu();
@@ -65,8 +66,7 @@ int main()
                         printf("Aplicacao de efeitos concluída.\n");
                         break;
                     } else {
-                        contagem_efeitos_rgb++;
-                        aplicar_efeito_rgb(&imrgb, efeito, contagem_efeitos_rgb, history_rgb); // Passe o histórico de RGB
+                        aplicar_efeito_rgb(&imrgb, efeito, ++contagem_efeitos_rgb, history_rgb);
                     }
                 }
                 break;
@@ -90,8 +90,7 @@ int main()
                         printf("Aplicacao de efeitos concluída.\n");
                         break;
                     } else {
-                        contagem_efeitos_gray++;
-                        aplicar_efeito_gray(&imgray, efeito, contagem_efeitos_gray, history_gray); // Passe o histórico de Gray
+                        aplicar_efeito_gray(&imgray, efeito, ++contagem_efeitos_gray, history_gray);
                     }
                 }
                 break;
@@ -113,7 +112,6 @@ int main()
     return 0;
 }
 
-
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 {
     ler_imagem_arkv(arq, imrgb);
@@ -132,107 +130,99 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem, ImageHistory 
         case 1:
             printf("Aplicando Blur RGB\n");
             aplicar_blur_rgb(imrgb);
+            add_image_to_history_rgb(history, imrgb);
             break;
         case 2:
             printf("Aplicando CLAHE RGB\n");
             aplicar_clahe_rgb(imrgb);
+            add_image_to_history_rgb(history, imrgb);
             break;
         case 3:
             printf("Aplicando Transpose RGB\n");
             aplicar_transpose_rgb(imrgb);
+            add_image_to_history_rgb(history, imrgb);
             break;
         case 4:
             printf("Aplicando Flip Vertical RGB\n");
             aplicar_flip_vertical_rgb(imrgb);
+            add_image_to_history_rgb(history, imrgb);
             break;
         case 5:
             printf("Aplicando Flip Horizontal RGB\n");
             aplicar_flip_horizontal_rgb(imrgb);
+            add_image_to_history_rgb(history, imrgb);
             break;
         case 7:
-            printf("Aplicando Desfazer\n");
+            printf("Desfazendo alteração\n");
             desfazer_rgb(history, imrgb);
-            break;; // Retorne após desfazer para nao adicionar a imagem atual ao histórico
+            break;
         case 8:
-            printf("Aplicando Refazer\n");
+            printf("Refazendo alteração\n");
             refazer_rgb(history, imrgb);
-            break;; // Retorne após refazer para nao adicionar a imagem atual ao histórico
+            break;
         default:
-            printf("Opcao de efeito invalida\n");
+            printf("Opcao invalida\n");
             return;
     }
 
-    FILE *imagemFinal = fopen(txt_filename, "w");
-    if (imagemFinal == NULL) {
-        printf("Erro ao salvar o arquivo.\n");
-        return;
-    }
-    salvar_imagem_arkv_rgb(imrgb, imagemFinal);
-    fclose(imagemFinal);
-    printf("Imagem salva em '%s'\n", txt_filename);
-
-    // Chamar o Python para converter o arquivo txt em imagem apenas quando necessario
-    if (efeito != 6) {
-        chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
-    }
-
-    add_image_to_history_rgb(history, imrgb);
+    FILE *input_txt = fopen(txt_filename, "w");
+    salvar_imagem_arkv_rgb(imrgb, input_txt);
+    fclose(input_txt);
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
+    // abrir_imagem(output_filename);
 }
 
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem, ImageHistoryGray *history)
 {
     char txt_filename[50];
     char output_filename[50];
-    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final%d.txt", contagem); // Modificado para iniciar com "input_"
-    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
+    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final_gray%d.txt", contagem); // Modificado para iniciar com "input_"
+    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final_gray%d.png", contagem);
 
     switch (efeito) {
         case 1:
             printf("Aplicando Blur Gray\n");
             aplicar_blur_gray(imgray);
+            add_image_to_history_gray(history, imgray);
             break;
         case 2:
             printf("Aplicando CLAHE Gray\n");
             aplicar_clahe_gray(imgray);
+            add_image_to_history_gray(history, imgray);
             break;
         case 3:
             printf("Aplicando Transpose Gray\n");
             aplicar_transpose_gray(imgray);
+            add_image_to_history_gray(history, imgray);
             break;
         case 4:
             printf("Aplicando Flip Vertical Gray\n");
             aplicar_flip_vertical_gray(imgray);
+            add_image_to_history_gray(history, imgray);
             break;
         case 5:
             printf("Aplicando Flip Horizontal Gray\n");
             aplicar_flip_horizontal_gray(imgray);
+            add_image_to_history_gray(history, imgray);
             break;
         case 7:
-            printf("Aplicando Desfazer\n");
+            printf("Desfazendo alteração\n");
             desfazer_gray(history, imgray);
             break;
         case 8:
-            printf("Aplicando Refazer\n");
+            printf("Refazendo alteração\n");
             refazer_gray(history, imgray);
             break;
         default:
-            printf("Opcao de efeito invalida\n");
+            printf("Opcao invalida\n");
             return;
     }
 
-    FILE *imagemFinal = fopen(txt_filename, "w");
-    if (imagemFinal == NULL) {
-        printf("Erro ao salvar o arquivo.\n");
-        return;
-    }
-
-    salvar_imagem_arkv(imgray, imagemFinal);
-    fclose(imagemFinal);
-    printf("Imagem salva em '%s'\n", txt_filename);
-
-    chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
-
-    add_image_to_history_gray(history, imgray);
+    FILE *input_txt = fopen(txt_filename, "w");
+    salvar_imagem_arkv(imgray, input_txt);
+    fclose(input_txt);
+    chamar_python("utils/image_utils.py", "image_gray_from_txt", txt_filename, output_filename);
+    // abrir_imagem(output_filename);
 }
 
 void mostrar_menu()
@@ -407,42 +397,3 @@ void abrir_imagem(const char *image_path)
     }
 }
 
-void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb) {
-    ImageRGB *previous_image = undo_image_history_rgb(history);
-    if (previous_image != NULL) {
-        *imrgb = *previous_image;
-        printf("Última alteracao desfeita.\n");
-    } else {
-        printf("Nao ha alteracoes para desfazer.\n");
-    }
-}
-
-void refazer_rgb(ImageHistory *history, ImageRGB *imrgb) {
-    ImageRGB *next_image = redo_image_history_rgb(history);
-    if (next_image != NULL) {
-        *imrgb = *next_image;
-        printf("Última alteracao refeita.\n");
-    } else {
-        printf("Nao ha alteracoes para refazer.\n");
-    }
-}
-
-void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray) {
-    ImageGray *previous_image = undo_image_history_gray(history);
-    if (previous_image != NULL) {
-        *imgray = *previous_image;
-        printf("Última alteracao desfeita.\n");
-    } else {
-        printf("Nao ha alteracoes para desfazer.\n");
-    }
-}
-
-void refazer_gray(ImageHistoryGray *history, ImageGray *imgray) {
-    ImageGray *next_image = redo_image_history_gray(history);
-    if (next_image != NULL) {
-        *imgray = *next_image;
-        printf("Última alteracao refeita.\n");
-    } else {
-        printf("Nao ha alteracoes para refazer.\n");
-    }
-}
