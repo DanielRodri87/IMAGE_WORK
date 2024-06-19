@@ -14,10 +14,10 @@ void aplicar_clahe_gray(ImageGray *imgray);
 void aplicar_blur_gray(ImageGray *imgray);
 void aplicar_flip_vertical_gray(ImageGray *imgray);
 void aplicar_flip_horizontal_gray(ImageGray *imgray);
-void exibir_resultado_rgb(int efeito);
-void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem, ImageHistoryGray *history);
+void exibir_resultado_rgb();
+void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history);
 void mostrar_menu();
-void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem, ImageHistory *history);
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history);
 void abrir_imagem(const char *image_path);
 
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
@@ -33,9 +33,7 @@ int main()
     FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
     ImageRGB imrgb;
     ImageGray imgray;
-    int opcao, opcao_lista, efeito;
-    int contagem_efeitos_rgb = 0;
-    int contagem_efeitos_gray = 0;
+    int opcao, efeito;
     ImageHistory *history_rgb = create_image_history();
     ImageHistoryGray *history_gray = create_image_history_gray();
 
@@ -70,17 +68,17 @@ int main()
                 }
                 else
                 {
-                    aplicar_efeito_rgb(&imrgb, efeito, ++contagem_efeitos_rgb, history_rgb);
+                    aplicar_efeito_rgb(&imrgb, efeito, history_rgb);
                 }
             }
             break;
         case 2:
             converter_para_gray(&imrgb, &imgray);
-            FILE *input_txt = fopen("utils/input_imagem_final_gray.txt", "w");
+            FILE *input_txt = fopen("utils/input_imagem_final.txt", "w");
             salvar_imagem_arkv(&imgray, input_txt);
             fclose(input_txt);
-            chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final_gray.txt", "utils/imagem_final_gray.png");
-            abrir_imagem("imagem_final_gray.png");
+            chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final.txt", "utils/imagem_final.png");
+            add_image_to_history_gray(history_gray, &imgray);
 
             break;
         case 3:
@@ -98,14 +96,12 @@ int main()
                 }
                 else
                 {
-                    aplicar_efeito_gray(&imgray, efeito, ++contagem_efeitos_gray, history_gray);
+                    aplicar_efeito_gray(&imgray, efeito, history_gray);
                 }
             }
             break;
         case 4:
-            printf("Quantos efeitos voce aplicou: ");
-            scanf("%d", &efeito);
-            exibir_resultado_rgb(efeito);
+            exibir_resultado_rgb();
             abrir_imagem("image_rgb.png");
             break;
         case 5:
@@ -123,16 +119,14 @@ int main()
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 {
     ler_imagem_arkv(arq, imrgb);
-    chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/output_image_example_RGB.png");
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/imagem_final.png");
     abrir_imagem("image_rgb.png");
 }
 
-void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem, ImageHistory *history)
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
 {
-    char txt_filename[50];
-    char output_filename[50];
-    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final%d.txt", contagem); // Modificado para iniciar com "input_"
-    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
+    const char *txt_filename = "utils/input_imagem_final.txt";
+    const char *output_filename = "utils/imagem_final.png";
 
     switch (efeito)
     {
@@ -178,15 +172,12 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem, ImageHistory 
     salvar_imagem_arkv_rgb(imrgb, input_txt);
     fclose(input_txt);
     chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
-    // abrir_imagem(output_filename);
 }
 
-void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem, ImageHistoryGray *history)
+void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history)
 {
-    char txt_filename[50];
-    char output_filename[50];
-    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final_gray%d.txt", contagem); // Modificado para iniciar com "input_"
-    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final_gray%d.png", contagem);
+    const char *txt_filename = "utils/input_imagem_final.txt";
+    const char *output_filename = "utils/imagem_final.png";
 
     switch (efeito)
     {
@@ -232,7 +223,6 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem, ImageHisto
     salvar_imagem_arkv(imgray, input_txt);
     fclose(input_txt);
     chamar_python("utils/image_utils.py", "image_gray_from_txt", txt_filename, output_filename);
-    // abrir_imagem(output_filename);
 }
 
 void mostrar_menu()
@@ -315,12 +305,10 @@ void aplicar_flip_horizontal_rgb(ImageRGB *imrgb)
     *imrgb = flip_rgb_horizontal;
 }
 
-void exibir_resultado_rgb(int efeito)
+void exibir_resultado_rgb()
 {
-    char filename[50];
-    char output_filename[50];
-    snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", efeito);
-    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", efeito);
+    const char *filename = "utils/input_imagem_final.txt";
+    const char *output_filename = "utils/imagem_final.png";
 
     FILE *imagemFinal = fopen(filename, "r");
     if (imagemFinal == NULL)
