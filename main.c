@@ -42,7 +42,8 @@ int main()
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
-
+    
+    system("python utils/select_image.py");
     criar_imagem_rgb(arq, &imrgb);
     add_image_to_history_rgb(history_rgb, &imrgb);
     while (1)
