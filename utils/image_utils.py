@@ -1,6 +1,7 @@
 from PIL import Image
 import os
 
+
 def txt_from_image_gray(image_path, output_path, gray=True):
     try:
         img = Image.open(image_path)
@@ -22,6 +23,7 @@ def txt_from_image_gray(image_path, output_path, gray=True):
         print(f"Arquivo texto salvo em {output_path}")
     except Exception as e:
         print(f"Erro ao converter imagem para texto: {e}")
+
 
 def image_gray_from_txt(txt_path, output_path):
     try:

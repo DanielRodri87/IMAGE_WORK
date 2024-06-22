@@ -6,8 +6,8 @@ def abrir_imagem(image_path):
     try:
         if sys.platform.startswith('darwin'):
             subprocess.call(('open', image_path))
-        elif os.name == 'nt':
-            subprocess.call(('explorer', image_path))
+        elif os.name == 'nt' or 'WSL_DISTRO_NAME' in os.environ:
+            subprocess.call(('explorer.exe', image_path.replace('/', '\\')))
         elif os.name == 'posix':
             subprocess.call(('xdg-open', image_path))
     except Exception as e:
