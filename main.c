@@ -22,11 +22,11 @@ void abrir_imagem(const char *image_path);
 
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
 
-void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb);
-void refazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+// void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+// void refazer_rgb(ImageHistory *history, ImageRGB *imrgb);
 
-void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray);
-void refazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+// void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+// void refazer_gray(ImageHistoryGray *history, ImageGray *imgray);
 
 int main()
 {
@@ -42,7 +42,8 @@ int main()
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
-
+    
+    system("python utils/select_image.py");
     criar_imagem_rgb(arq, &imrgb);
     add_image_to_history_rgb(history_rgb, &imrgb);
     while (1)
@@ -107,6 +108,7 @@ int main()
         case 5:
             printf("Saindo do programa...\n");
             return 0;
+
         default:
             printf("Opcao invalida\n");
             break;
@@ -151,6 +153,7 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
         add_image_to_history_rgb(history, imrgb);
         break;
     case 5:
+        remove("utils/imagem_final.png");
         printf("Aplicando Flip Horizontal RGB\n");
         aplicar_flip_horizontal_rgb(imrgb);
         add_image_to_history_rgb(history, imrgb);
@@ -158,6 +161,7 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
     case 7:
         printf("Desfazendo alteração\n");
         desfazer_rgb(history, imrgb);
+
         break;
     case 8:
         printf("Refazendo alteração\n");
@@ -172,6 +176,7 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
     salvar_imagem_arkv_rgb(imrgb, input_txt);
     fclose(input_txt);
     chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
+    abrir_imagem("image_rgb.png");
 }
 
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history)
@@ -223,6 +228,7 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
     salvar_imagem_arkv(imgray, input_txt);
     fclose(input_txt);
     chamar_python("utils/image_utils.py", "image_gray_from_txt", txt_filename, output_filename);
+    abrir_imagem("image_rgb.png");
 }
 
 void mostrar_menu()
@@ -238,6 +244,7 @@ void mostrar_menu()
     printf("========================================\n");
 }
 
+// chamar_python("utils/image_utils.py", "image_rgb_from_latest_txt", "utils/input_imagem_final.txt", "ritinha.png");
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
 {
     char command[256];
