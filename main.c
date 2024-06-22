@@ -42,10 +42,11 @@ int main()
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
-    
-    system("python utils/select_image.py");
+
+    system("python3 utils/select_image.py");
     criar_imagem_rgb(arq, &imrgb);
     add_image_to_history_rgb(history_rgb, &imrgb);
+
     while (1)
     {
         mostrar_menu();
@@ -77,10 +78,8 @@ int main()
             converter_para_gray(&imrgb, &imgray);
             FILE *input_txt = fopen("utils/input_imagem_final.txt", "w");
             salvar_imagem_arkv(&imgray, input_txt);
-            fclose(input_txt);
             chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final.txt", "utils/imagem_final.png");
             add_image_to_history_gray(history_gray, &imgray);
-
             break;
         case 3:
             while (1)
@@ -108,7 +107,6 @@ int main()
         case 5:
             printf("Saindo do programa...\n");
             return 0;
-
         default:
             printf("Opcao invalida\n");
             break;
@@ -174,7 +172,6 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
 
     FILE *input_txt = fopen(txt_filename, "w");
     salvar_imagem_arkv_rgb(imrgb, input_txt);
-    fclose(input_txt);
     chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
     abrir_imagem("image_rgb.png");
 }
@@ -226,7 +223,6 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
 
     FILE *input_txt = fopen(txt_filename, "w");
     salvar_imagem_arkv(imgray, input_txt);
-    fclose(input_txt);
     chamar_python("utils/image_utils.py", "image_gray_from_txt", txt_filename, output_filename);
     abrir_imagem("image_rgb.png");
 }
@@ -248,7 +244,7 @@ void mostrar_menu()
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
 {
     char command[256];
-    snprintf(command, sizeof(command), "python %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
+    snprintf(command, sizeof(command), "python3 %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
     system(command);
 }
 
@@ -325,7 +321,6 @@ void exibir_resultado_rgb()
     }
     ImageRGB img_final;
     ler_imagem_arkv(imagemFinal, &img_final);
-    fclose(imagemFinal);
     chamar_python("utils/image_utils.py", "image_rgb_from_txt", filename, output_filename);
 }
 
@@ -393,7 +388,7 @@ void aplicar_flip_horizontal_gray(ImageGray *imgray)
 void abrir_imagem(const char *image_path)
 {
     char command[256];
-    snprintf(command, sizeof(command), "python utils/abrir_imagem_sistemas.py %s", image_path);
+    snprintf(command, sizeof(command), "python3 utils/abrir_imagem_sistemas.py %s", image_path);
     int ret = system(command);
     if (ret != 0)
     {
