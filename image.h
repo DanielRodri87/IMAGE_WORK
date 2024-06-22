@@ -68,25 +68,34 @@ void printImageColor(ImageRGB *img); // Rita                               | Ok
 void ler_imagem_arkv(FILE *arq, ImageRGB *img); // Daniel                  | Ok
 
 
-// Estrutura para armazenar o histórico de imagens
-typedef struct imageNode {
-    void *image; // Ponteiro genérico para ImageGray ou ImageRGB
-    struct imageNode *prev;
-    struct imageNode *next;
-} ImageNode;
+typedef struct imageHistoryNode {
+    ImageRGB *image;
+    struct imageHistoryNode *next;
+    struct imageHistoryNode *prev;
+} ImageHistoryNode;
 
-typedef struct {
-    ImageNode *head;
-    ImageNode *tail;
-    ImageNode *current; // operação atual
+typedef struct imageHistoryNodeGray {
+    ImageGray *image;
+    struct imageHistoryNodeGray *next;
+    struct imageHistoryNodeGray *prev;
+} ImageHistoryNodeGray;
+
+typedef struct imageHistory {
+    ImageHistoryNode *current;
 } ImageHistory;
 
-// Funções para manipulação da lista duplamente encadeada
+typedef struct imageHistoryGray {
+    ImageHistoryNodeGray *current;
+} ImageHistoryGray;
+
+
+void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image);
+void add_image_to_history_gray(ImageHistoryGray *history, ImageGray *image);
+void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+void refazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+void refazer_gray(ImageHistoryGray *history, ImageGray *imgray);
 ImageHistory *create_image_history();
-void add_image_to_history(ImageHistory *history, void *image);
-void desfazer_operacao(ImageHistory *history);
-void refazer_operacao(ImageHistory *history);
-void ir_para_operacao_anterior(ImageHistory *history);
-void ir_para_proxima_operacao(ImageHistory *history);
-void free_image_history(ImageHistory *history);
+ImageHistoryGray *create_image_history_gray();
+
 #endif // IMAGE_H

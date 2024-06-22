@@ -14,31 +14,38 @@ void aplicar_clahe_gray(ImageGray *imgray);
 void aplicar_blur_gray(ImageGray *imgray);
 void aplicar_flip_vertical_gray(ImageGray *imgray);
 void aplicar_flip_horizontal_gray(ImageGray *imgray);
-void exibir_resultado_rgb(int efeito);
-void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem);
+void exibir_resultado_rgb();
+void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history);
 void mostrar_menu();
-void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem);
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history);
 void abrir_imagem(const char *image_path);
 
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
+
+// void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+// void refazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+
+// void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+// void refazer_gray(ImageHistoryGray *history, ImageGray *imgray);
 
 int main()
 {
     FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
     ImageRGB imrgb;
     ImageGray imgray;
-    int opcao, opcao_lista, efeito;
-    int contagem_efeitos_rgb = 0;
-    int contagem_efeitos_gray = 0;
+    int opcao, efeito;
+    ImageHistory *history_rgb = create_image_history();
+    ImageHistoryGray *history_gray = create_image_history_gray();
 
-    if (arq == NULL) {
+    if (arq == NULL)
+    {
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
-
+    
+    system("python utils/select_image.py");
     criar_imagem_rgb(arq, &imrgb);
-
-    ImageHistory *history = create_image_history();
+    add_image_to_history_rgb(history_rgb, &imrgb);
     while (1)
     {
         mostrar_menu();
@@ -47,87 +54,64 @@ int main()
 
         switch (opcao)
         {
-            case 1:
-                while (1)
-                {
-                    printf("Selecione o efeito que deseja aplicar:\n");
-                    printf("1 - Blur RGB\n2 - CLAHE RGB\n3 - Transpose RGB\n4 - Flip Vertical RGB\n5 - Flip Horizontal RGB\n6 - Concluir Aplicacao de Efeitos\n");
-                    printf("Digite a opcao desejada: ");
-                    scanf("%d", &efeito);
-
-                    if (efeito == 6) {
-                        printf("Aplicacao de efeitos concluída.\n");
-                        break;
-                    }
-
-                    contagem_efeitos_rgb++;
-                    aplicar_efeito_rgb(&imrgb, efeito, contagem_efeitos_rgb);
-                    add_image_to_history(history, &imrgb);
-                }
-                break;
-            case 2:
-                converter_para_gray(&imrgb, &imgray);
-                FILE *GrayExample;
-                GrayExample = fopen("utils/input_example_GRAY.txt", "w");
-                salvar_imagem_arkv(&imgray, GrayExample);
-                fclose(GrayExample);
-                chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_example_GRAY.txt", "utils/output_example_GRAY.png");
-                break;
-            case 3:
-                while (1)
-                {
-                    printf("Selecione o efeito que deseja aplicar:\n");
-                    printf("1 - Blur Gray\n2 - CLAHE Gray\n3 - Transpose Gray\n4 - Flip Vertical Gray\n5 - Flip Horizontal Gray\n6 - Concluir Aplicacao de Efeitos\n");
-                    printf("Digite a opcao desejada: ");
-                    scanf("%d", &efeito);
-
-                    if (efeito == 6) {
-                        printf("Aplicacao de efeitos concluída.\n");
-                        break;
-                    }
-
-                    contagem_efeitos_gray++;
-                    aplicar_efeito_gray(&imgray, efeito, contagem_efeitos_gray);
-                    add_image_to_history(history, &imgray);
-                }
-                break;
-            case 4:
-                printf("Quantos efeitos você aplicou: ");
-                scanf("%d", &efeito);
-                exibir_resultado_rgb(efeito);
-                abrir_imagem("image_rgb.png");
-                break;
-            case 5:
-                printf("1 - Desfazer Operacao\n2 - Refazeer Operacao\n3 - Retornar a operaçao anterior\n4 - Seguir para a próxima Operacao\n");
+        case 1:
+            while (1)
+            {
+                printf("Selecione o efeito que deseja aplicar:\n");
+                printf("1 - Blur RGB\n2 - CLAHE RGB\n3 - Transpose RGB\n4 - Flip Vertical RGB\n5 - Flip Horizontal RGB\n6 - Concluir Aplicacao de Efeitos\n7 - Desfazer alteracao\n8 - Refazer alteracao\n");
                 printf("Digite a opcao desejada: ");
-                scanf("%d", &opcao_lista);
+                scanf("%d", &efeito);
 
-                switch (opcao_lista)
+                if (efeito == 6)
                 {
-                    case 1:
-                        desfazer_operacao(history);
-                        break;
-                    case 2:
-                        refazer_operacao(history);
-                        break;
-                    case 3:
-                        ir_para_operacao_anterior(history);
-                        break;
-                    case 4:
-                        ir_para_proxima_operacao(history);
-                        break;
-                    default:
-                        printf("Opcao inválida no Gerenciar Lista\n");
-                        break;
+                    printf("Aplicacao de efeitos concluída.\n");
+                    break;
                 }
-                break;
-            case 6:
-                free_image_history(history);
-                printf("Saindo do programa...\n");
-                return 0;
-            default:
-                printf("Opcao inválida\n");
-                break;
+                else
+                {
+                    aplicar_efeito_rgb(&imrgb, efeito, history_rgb);
+                }
+            }
+            break;
+        case 2:
+            converter_para_gray(&imrgb, &imgray);
+            FILE *input_txt = fopen("utils/input_imagem_final.txt", "w");
+            salvar_imagem_arkv(&imgray, input_txt);
+            fclose(input_txt);
+            chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final.txt", "utils/imagem_final.png");
+            add_image_to_history_gray(history_gray, &imgray);
+
+            break;
+        case 3:
+            while (1)
+            {
+                printf("Selecione o efeito que deseja aplicar:\n");
+                printf("1 - Blur Gray\n2 - CLAHE Gray\n3 - Transpose Gray\n4 - Flip Vertical Gray\n5 - Flip Horizontal Gray\n6 - Concluir Aplicacao de Efeitos\n7 - Desfazer alteracao\n8 - Refazer alteracao\n");
+                printf("Digite a opcao desejada: ");
+                scanf("%d", &efeito);
+
+                if (efeito == 6)
+                {
+                    printf("Aplicacao de efeitos concluída.\n");
+                    break;
+                }
+                else
+                {
+                    aplicar_efeito_gray(&imgray, efeito, history_gray);
+                }
+            }
+            break;
+        case 4:
+            exibir_resultado_rgb();
+            abrir_imagem("image_rgb.png");
+            break;
+        case 5:
+            printf("Saindo do programa...\n");
+            return 0;
+
+        default:
+            printf("Opcao invalida\n");
+            break;
         }
     }
 
@@ -137,104 +121,114 @@ int main()
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 {
     ler_imagem_arkv(arq, imrgb);
-    chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/output_image_example_RGB.png");
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", "utils/input_image_example_RGB.txt", "utils/imagem_final.png");
     abrir_imagem("image_rgb.png");
 }
 
-void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, int contagem)
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
 {
-    char txt_filename[50];
-    char output_filename[50];
-    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final%d.txt", contagem); // Modificado para iniciar com "input_"
-    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
+    const char *txt_filename = "utils/input_imagem_final.txt";
+    const char *output_filename = "utils/imagem_final.png";
 
-    switch (efeito) {
-        case 1:
-            printf("Aplicando Blur RGB\n");
-            aplicar_blur_rgb(imrgb);
+    switch (efeito)
+    {
+    case 1:
+        printf("Aplicando Blur RGB\n");
+        aplicar_blur_rgb(imrgb);
+        add_image_to_history_rgb(history, imrgb);
+        break;
+    case 2:
+        printf("Aplicando CLAHE RGB\n");
+        aplicar_clahe_rgb(imrgb);
+        add_image_to_history_rgb(history, imrgb);
+        break;
+    case 3:
+        printf("Aplicando Transpose RGB\n");
+        aplicar_transpose_rgb(imrgb);
+        add_image_to_history_rgb(history, imrgb);
+        break;
+    case 4:
+        printf("Aplicando Flip Vertical RGB\n");
+        aplicar_flip_vertical_rgb(imrgb);
+        add_image_to_history_rgb(history, imrgb);
+        break;
+    case 5:
+        remove("utils/imagem_final.png");
+        printf("Aplicando Flip Horizontal RGB\n");
+        aplicar_flip_horizontal_rgb(imrgb);
+        add_image_to_history_rgb(history, imrgb);
+        break;
+    case 7:
+        printf("Desfazendo alteração\n");
+        desfazer_rgb(history, imrgb);
 
-            break;
-        case 2:
-            printf("Aplicando CLAHE RGB\n");
-            aplicar_clahe_rgb(imrgb);
-
-            break;
-        case 3:
-            printf("Aplicando Transpose RGB\n");
-            aplicar_transpose_rgb(imrgb);
-            break;
-        case 4:
-            printf("Aplicando Flip Vertical RGB\n");
-            aplicar_flip_vertical_rgb(imrgb);
-            break;
-        case 5:
-            printf("Aplicando Flip Horizontal RGB\n");
-            aplicar_flip_horizontal_rgb(imrgb);
-            break;
-        default:
-            printf("Opcao de efeito inválida\n");
-            return;
-    }
-
-    FILE *imagemFinal = fopen(txt_filename, "w");
-    if (imagemFinal == NULL) {
-        printf("Erro ao salvar o arquivo.\n");
+        break;
+    case 8:
+        printf("Refazendo alteração\n");
+        refazer_rgb(history, imrgb);
+        break;
+    default:
+        printf("Opcao invalida\n");
         return;
     }
-    salvar_imagem_arkv_rgb(imrgb, imagemFinal);
-    fclose(imagemFinal);
-    printf("Imagem salva em '%s'\n", txt_filename);
 
-    // Chamar o Python para converter o arquivo txt em imagem apenas quando necessário
-    if (efeito != 6) {
-        chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
-    }
+    FILE *input_txt = fopen(txt_filename, "w");
+    salvar_imagem_arkv_rgb(imrgb, input_txt);
+    fclose(input_txt);
+    chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
+    abrir_imagem("image_rgb.png");
 }
 
-
-void aplicar_efeito_gray(ImageGray *imgray, int efeito, int contagem)
+void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history)
 {
-    char txt_filename[50];
-    char output_filename[50];
-    snprintf(txt_filename, sizeof(txt_filename), "utils/input_imagem_final%d.txt", contagem); // Modificado para iniciar com "input_"
-    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", contagem);
+    const char *txt_filename = "utils/input_imagem_final.txt";
+    const char *output_filename = "utils/imagem_final.png";
 
-    switch (efeito) {
-        case 1:
-            printf("Aplicando Blur Gray\n");
-            aplicar_blur_gray(imgray);
-            break;
-        case 2:
-            printf("Aplicando CLAHE Gray\n");
-            aplicar_clahe_gray(imgray);
-            break;
-        case 3:
-            printf("Aplicando Transpose Gray\n");
-            aplicar_transpose_gray(imgray);
-            break;
-        case 4:
-            printf("Aplicando Flip Vertical Gray\n");
-            aplicar_flip_vertical_gray(imgray);
-            break;
-        case 5:
-            printf("Aplicando Flip Horizontal Gray\n");
-            aplicar_flip_horizontal_gray(imgray);
-            break;
-        default:
-            printf("Opcao de efeito inválida\n");
-            return;
-    }
-
-    FILE *imagemFinal = fopen(txt_filename, "w");
-    if (imagemFinal == NULL) {
-        printf("Erro ao salvar o arquivo.\n");
+    switch (efeito)
+    {
+    case 1:
+        printf("Aplicando Blur Gray\n");
+        aplicar_blur_gray(imgray);
+        add_image_to_history_gray(history, imgray);
+        break;
+    case 2:
+        printf("Aplicando CLAHE Gray\n");
+        aplicar_clahe_gray(imgray);
+        add_image_to_history_gray(history, imgray);
+        break;
+    case 3:
+        printf("Aplicando Transpose Gray\n");
+        aplicar_transpose_gray(imgray);
+        add_image_to_history_gray(history, imgray);
+        break;
+    case 4:
+        printf("Aplicando Flip Vertical Gray\n");
+        aplicar_flip_vertical_gray(imgray);
+        add_image_to_history_gray(history, imgray);
+        break;
+    case 5:
+        printf("Aplicando Flip Horizontal Gray\n");
+        aplicar_flip_horizontal_gray(imgray);
+        add_image_to_history_gray(history, imgray);
+        break;
+    case 7:
+        printf("Desfazendo alteração\n");
+        desfazer_gray(history, imgray);
+        break;
+    case 8:
+        printf("Refazendo alteração\n");
+        refazer_gray(history, imgray);
+        break;
+    default:
+        printf("Opcao invalida\n");
         return;
     }
-    salvar_imagem_arkv(imgray, imagemFinal);
-    fclose(imagemFinal);
-    printf("Imagem salva em '%s'\n", txt_filename);
 
-    chamar_python("utils/image_utils.py", "image_rgb_from_txt", txt_filename, output_filename);
+    FILE *input_txt = fopen(txt_filename, "w");
+    salvar_imagem_arkv(imgray, input_txt);
+    fclose(input_txt);
+    chamar_python("utils/image_utils.py", "image_gray_from_txt", txt_filename, output_filename);
+    abrir_imagem("image_rgb.png");
 }
 
 void mostrar_menu()
@@ -246,19 +240,17 @@ void mostrar_menu()
     printf("2 - Converter para Preto e Branco\n");
     printf("3 - Aplicar Efeitos Preto e Branco\n");
     printf("4 - Exibir Resultado\n");
-    printf("5 - Gerenciar Lista\n");
-    printf("6 - Sair da aplicação\n");
+    printf("5 - Sair da aplicacao\n");
     printf("========================================\n");
 }
 
-
+// chamar_python("utils/image_utils.py", "image_rgb_from_latest_txt", "utils/input_imagem_final.txt", "ritinha.png");
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
 {
     char command[256];
     snprintf(command, sizeof(command), "python %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
     system(command);
 }
-
 
 void aplicar_blur_rgb(ImageRGB *imrgb)
 {
@@ -320,15 +312,14 @@ void aplicar_flip_horizontal_rgb(ImageRGB *imrgb)
     *imrgb = flip_rgb_horizontal;
 }
 
-void exibir_resultado_rgb(int efeito)
+void exibir_resultado_rgb()
 {
-    char filename[50];
-    char output_filename[50];
-    snprintf(filename, sizeof(filename), "utils/imagem_final%d.txt", efeito);
-    snprintf(output_filename, sizeof(output_filename), "utils/imagem_final%d.png", efeito);
+    const char *filename = "utils/input_imagem_final.txt";
+    const char *output_filename = "utils/imagem_final.png";
 
     FILE *imagemFinal = fopen(filename, "r");
-    if (imagemFinal == NULL) {
+    if (imagemFinal == NULL)
+    {
         printf("Erro ao abrir o arquivo da imagem final.\n");
         return;
     }
@@ -396,17 +387,16 @@ void aplicar_flip_horizontal_gray(ImageGray *imgray)
     flip_horizontal_gray(imgray, &flip_gray_horizontal_var);
 
     *imgray = flip_gray_horizontal_var;
-
 }
 
-// Aqui irei fazer uma função que vai abrir fotos no windows
+// Aqui irei fazer uma funcao que vai abrir fotos no windows
 void abrir_imagem(const char *image_path)
 {
     char command[256];
     snprintf(command, sizeof(command), "python utils/abrir_imagem_sistemas.py %s", image_path);
     int ret = system(command);
-    if (ret != 0) {
+    if (ret != 0)
+    {
         printf("Erro ao abrir a imagem. Código de retorno: %d\n", ret);
     }
 }
-
