@@ -95,6 +95,9 @@ void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb);
 void refazer_rgb(ImageHistory *history, ImageRGB *imrgb);
 void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray);
 void refazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history);
+void sortear_efeito_rgb(ImageRGB *imrgb, ImageHistory *history);
+void sortear_efeito_gray(ImageGray *imgray, ImageHistoryGray *history);
 ImageHistory *create_image_history();
 ImageHistoryGray *create_image_history_gray();
 

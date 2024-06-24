@@ -619,3 +619,59 @@ ImageHistoryGray *create_image_history_gray()
     history->current = NULL;
     return history;
 }
+
+void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history);
+
+void sortear_efeito_rgb(ImageRGB *imrgb, ImageHistory *history)
+{
+    int efeito = (rand() % 5) + 1; // Gera um número aleatório entre 1 e 5
+
+    printf("Efeito sorteado: ");
+    switch (efeito)
+    {
+    case 1:
+        printf("Blur RGB\n");
+        break;
+    case 2:
+        printf("CLAHE RGB\n");
+        break;
+    case 3:
+        printf("Transpose RGB\n");
+        break;
+    case 4:
+        printf("Flip Vertical RGB\n");
+        break;
+    case 5:
+        printf("Flip Horizontal RGB\n");
+        break;
+    }
+    aplicar_efeito_rgb(imrgb, efeito, history);
+}
+
+void aplicar_efeito_gray(ImageGray *imgray, int efeito,  ImageHistoryGray *history);
+void sortear_efeito_gray(ImageGray *imgray,  ImageHistoryGray *history)
+{
+    int efeito = (rand() % 5) + 1; // Gera um número aleatório entre 1 e 5
+
+    printf("Efeito sorteado: ");
+    switch (efeito)
+    {
+    case 1:
+        printf("Blur Gray\n");
+        break;
+    case 2:
+        printf("CLAHE Gray\n");
+        break;
+    case 3:
+        printf("Transpose Gray\n");
+        break;
+    case 4:
+        printf("Flip Vertical Gray\n");
+        break;
+    case 5:
+        printf("Flip Horizontal Gray\n");
+        break;
+    }
+    aplicar_efeito_gray(imgray, efeito, history);
+}
+
