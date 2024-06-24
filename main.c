@@ -46,8 +46,8 @@ int main()
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
-
-    system("python utils/select_image.py");
+    remove("utils/input_imagem_final.txt");
+    system("python3 utils/select_image.py");
     criar_imagem_rgb(arq, &imrgb);
     add_image_to_history_rgb(history_rgb, &imrgb);
 
@@ -313,7 +313,7 @@ void mostrar_menu()
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
 {
     char command[256];
-    snprintf(command, sizeof(command), "python %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
+    snprintf(command, sizeof(command), "python3 %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
     system(command);
 }
 
@@ -457,7 +457,7 @@ void aplicar_flip_horizontal_gray(ImageGray *imgray)
 void abrir_imagem(const char *image_path)
 {
     char command[256];
-    snprintf(command, sizeof(command), "python utils/abrir_imagem_sistemas.py %s", image_path);
+    snprintf(command, sizeof(command), "python3 utils/abrir_imagem_sistemas.py %s", image_path);
     int ret = system(command);
     if (ret != 0)
     {
