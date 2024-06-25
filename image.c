@@ -49,7 +49,6 @@ void alocarRGB(int altura, int largura, PixelRGB **pixel)
     *pixel = (PixelRGB *)calloc(sizeof(PixelRGB), altura * largura);
 }
 
-
 // funcão que converte a RBG pra Gray (basicamente a mesma coisa, so muda pra se adequar nas definições da nova lista.h)
 ImageGray *converter_para_gray(ImageRGB *img, ImageGray *imgray)
 {
