@@ -107,40 +107,45 @@ int main(int argc, char *argv[])
     gtk_window_set_default_size(GTK_WINDOW(window), WINDOW_WIDTH, WINDOW_HEIGHT);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
+    // Cria um grid para organizar os botões
     GtkWidget *grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
 
-    // Criar uma caixa horizontal para os botões principais
-    GtkWidget *box_buttons = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
-    gtk_grid_attach(GTK_GRID(grid), box_buttons, 0, 0, 1, 1);
+    // Define a espessura da borda do grid e espaçamento interno
+    gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 20);  // Espaçamento entre as colunas
 
+    // Cria os botões e os adiciona ao grid
     GtkWidget *button_apply_effects_rgb = gtk_button_new_with_label("Aplicar Efeitos RGB");
     g_signal_connect(button_apply_effects_rgb, "clicked", G_CALLBACK(on_apply_effects_rgb), NULL);
-    gtk_box_pack_start(GTK_BOX(box_buttons), button_apply_effects_rgb, TRUE, TRUE, 5);
+    gtk_grid_attach(GTK_GRID(grid), button_apply_effects_rgb, 0, 0, 1, 1);
 
     GtkWidget *button_apply_effects_gray = gtk_button_new_with_label("Aplicar Efeitos Preto e Branco");
     g_signal_connect(button_apply_effects_gray, "clicked", G_CALLBACK(on_apply_effects_gray), NULL);
-    gtk_box_pack_start(GTK_BOX(box_buttons), button_apply_effects_gray, TRUE, TRUE, 5);
+    gtk_grid_attach(GTK_GRID(grid), button_apply_effects_gray, 1, 0, 1, 1);
 
     GtkWidget *button_convert_to_gray = gtk_button_new_with_label("Converter para Preto e Branco");
     g_signal_connect(button_convert_to_gray, "clicked", G_CALLBACK(on_convert_to_gray), NULL);
-    gtk_box_pack_start(GTK_BOX(box_buttons), button_convert_to_gray, TRUE, TRUE, 5);
+    gtk_grid_attach(GTK_GRID(grid), button_convert_to_gray, 2, 0, 1, 1);
 
     GtkWidget *button_show_result = gtk_button_new_with_label("Exibir Resultado");
     g_signal_connect(button_show_result, "clicked", G_CALLBACK(on_show_result), NULL);
-    gtk_box_pack_start(GTK_BOX(box_buttons), button_show_result, TRUE, TRUE, 5);
+    gtk_grid_attach(GTK_GRID(grid), button_show_result, 3, 0, 1, 1);
 
     GtkWidget *button_sort_effect_rgb = gtk_button_new_with_label("Sortear Efeito RGB");
     g_signal_connect(button_sort_effect_rgb, "clicked", G_CALLBACK(show_effects_sort_rgb), NULL);
-    gtk_box_pack_start(GTK_BOX(box_buttons), button_sort_effect_rgb, TRUE, TRUE, 5);
+    gtk_grid_attach(GTK_GRID(grid), button_sort_effect_rgb, 4, 0, 1, 1);
 
     GtkWidget *button_sort_effect_gray = gtk_button_new_with_label("Sortear Efeito Preto e Branco");
     g_signal_connect(button_sort_effect_gray, "clicked", G_CALLBACK(show_effects_sort_gray), NULL);
-    gtk_box_pack_start(GTK_BOX(box_buttons), button_sort_effect_gray, TRUE, TRUE, 5);
+    gtk_grid_attach(GTK_GRID(grid), button_sort_effect_gray, 5, 0, 1, 1);
 
     GtkWidget *button_exit = gtk_button_new_with_label("Sair da aplicação");
     g_signal_connect(button_exit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
-    gtk_grid_attach(GTK_GRID(grid), button_exit, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), button_exit, 6, 0, 1, 1);
+
+    // Ajusta o tamanho homogêneo dos botões no grid
+    gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
 
     gtk_widget_show_all(window);
 
@@ -148,6 +153,7 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
 
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 {
