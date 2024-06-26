@@ -25,13 +25,19 @@ void abrir_imagem(const char *image_path);
 
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
 
+// void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+// void refazer_rgb(ImageHistory *history, ImageRGB *imrgb);
+
+// void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+// void refazer_gray(ImageHistoryGray *history, ImageGray *imgray);
+
 int main()
 {
     srand(time(NULL));
     FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
     ImageRGB imrgb;
     ImageGray imgray;
-    int opcao, efeito, imagem_eh_gray = 0, op_alerta;
+    int opcao, efeito;
     ImageHistory *history_rgb = create_image_history();
     ImageHistoryGray *history_gray = create_image_history_gray();
 
@@ -40,8 +46,8 @@ int main()
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
-    remove("utils/input_imagem_final.txt");
-    system("python3 utils/select_image.py");
+
+    system("python utils/select_image.py");
     criar_imagem_rgb(arq, &imrgb);
     add_image_to_history_rgb(history_rgb, &imrgb);
 
@@ -56,15 +62,6 @@ int main()
         case 1:
             while (1)
             {
-                if (imagem_eh_gray == 1)
-                {
-                    printf("ATENCAO!!! A IMAGEM EH DO TIPO GRAY, AO APLICAR O EFEITO ELA SERA CONVERTIDA PARA RGB\n");
-                    printf("Deseja continuar mesmo assim? (1 - Sim/2 - Nao) ");
-                    scanf("%d", &op_alerta);
-                    if (op_alerta == 2)
-                        break;
-                }
-
                 printf("Selecione o efeito que deseja aplicar:\n");
                 printf("1 - Blur RGB\n2 - CLAHE RGB\n3 - Transpose RGB\n4 - Flip Vertical RGB\n5 - Flip Horizontal RGB\n6 - Concluir Aplicacao de Efeitos\n7 - Desfazer alteracao\n8 - Refazer alteracao\n");
                 printf("Digite a opcao desejada: ");
@@ -72,13 +69,12 @@ int main()
 
                 if (efeito == 6)
                 {
-                    printf("Aplicacao de efeitos concluida.\n");
+                    printf("Aplicacao de efeitos concluída.\n");
                     break;
                 }
                 else
                 {
                     aplicar_efeito_rgb(&imrgb, efeito, history_rgb);
-                    imagem_eh_gray = 0;
                 }
             }
             break;
@@ -88,35 +84,24 @@ int main()
             salvar_imagem_arkv(&imgray, input_txt);
             chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final.txt", "utils/imagem_final.png");
             add_image_to_history_gray(history_gray, &imgray);
-            imagem_eh_gray = 1;
-            printf("Conversao para preto e branco realizada com sucesso\n");
-            system("pause");
             break;
         case 3:
-            if(imagem_eh_gray == 1)
+            while (1)
             {
-                while (1)
-                {
-                    printf("Selecione o efeito que deseja aplicar:\n");
-                    printf("1 - Blur Gray\n2 - CLAHE Gray\n3 - Transpose Gray\n4 - Flip Vertical Gray\n5 - Flip Horizontal Gray\n6 - Concluir Aplicacao de Efeitos\n7 - Desfazer alteracao\n8 - Refazer alteracao\n");
-                    printf("Digite a opcao desejada: ");
-                    scanf("%d", &efeito);
+                printf("Selecione o efeito que deseja aplicar:\n");
+                printf("1 - Blur Gray\n2 - CLAHE Gray\n3 - Transpose Gray\n4 - Flip Vertical Gray\n5 - Flip Horizontal Gray\n6 - Concluir Aplicacao de Efeitos\n7 - Desfazer alteracao\n8 - Refazer alteracao\n");
+                printf("Digite a opcao desejada: ");
+                scanf("%d", &efeito);
 
-                    if (efeito == 6)
-                    {
-                        printf("Aplicacao de efeitos concluida.\n");
-                        break;
-                    }
-                    else
-                    {
-                        aplicar_efeito_gray(&imgray, efeito, history_gray);
-                    }
+                if (efeito == 6)
+                {
+                    printf("Aplicacao de efeitos concluída.\n");
+                    break;
                 }
-            }
-            else
-            {
-                printf("A imagem precisa ser do tipo Gray, converta-a e retorne\n");
-                system("pause");
+                else
+                {
+                    aplicar_efeito_gray(&imgray, efeito, history_gray);
+                }
             }
             break;
         case 4:
@@ -125,17 +110,10 @@ int main()
             break;
 
         case 5:
-            if (imagem_eh_gray == 1)
-            {
-                printf("A imagem esta em Preto e Branco, por favor converta-a para RGB.\n");
-                system("pause");
-                break;
-            }
-            
             while (1)
             {
-                printf("Selecione a opcao:\n");
-                printf("1 - Sortear Efeito RGB\n2 - Desfazer ultimo sorteio\n3 - Sair do sorteio\n");
+                printf("Selecione a opção:\n");
+                printf("1 - Sortear Efeito RGB\n2 - Desfazer último sorteio\n3 - Sair do sorteio\n");
                 scanf("%d", &efeito);
 
                 if(efeito == 3){
@@ -148,7 +126,7 @@ int main()
                 }
                 else if(efeito == 2)
                 {
-                    printf("Desfazendo ultimo sorteio\n");
+                    printf("Desfazendo último sorteio\n");
                     desfazer_rgb(history_rgb, &imrgb);
                     FILE *input_txt = fopen("utils/input_imagem_final.txt", "w");
                     salvar_imagem_arkv_rgb(&imrgb, input_txt);
@@ -163,44 +141,35 @@ int main()
             break;
 
         case 6:
-        if (imagem_eh_gray == 1)
+        while (1)
         {
-            while (1)
-            {
-                printf("Selecione a opcao:\n");
-                printf("1 - Sortear Efeito GRAY\n2 - Desfazer ultimo sorteio\n3 - Sair do sorteio\n");
-                scanf("%d", &efeito);
+            printf("Selecione a opção:\n");
+            printf("1 - Sortear Efeito GRAY\n2 - Desfazer último sorteio\n3 - Sair do sorteio\n");
+            scanf("%d", &efeito);
 
-                if (efeito == 3)
-                {
-                    printf("Saindo do sorteio de efeitos.\n");
-                    break;
-                }
-                else if (efeito == 1)
-                {
-                    sortear_efeito_gray(&imgray, history_gray);
-                }
-                else if (efeito == 2)
-                {
-                    printf("Desfazendo ultimo sorteio\n");
-                    desfazer_gray(history_gray, &imgray);
-                    FILE *input_txt = fopen("utils/input_imagem_final.txt", "w");
-                    salvar_imagem_arkv(&imgray, input_txt); 
-                    chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final.txt", "utils/imagem_final.png");
-                    abrir_imagem("image_g.png");
-                }
-                else
-                {
-                    printf("Opcao invalida\n");
-                }
+            if (efeito == 3)
+            {
+                printf("Saindo do sorteio de efeitos.\n");
+                break;
+            }
+            else if (efeito == 1)
+            {
+                sortear_efeito_gray(&imgray, history_gray);
+            }
+            else if (efeito == 2)
+            {
+                printf("Desfazendo último sorteio\n");
+                desfazer_gray(history_gray, &imgray);
+                FILE *input_txt = fopen("utils/input_imagem_final.txt", "w");
+                salvar_imagem_arkv(&imgray, input_txt); 
+                chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final.txt", "utils/imagem_final.png");
+                abrir_imagem("image_g.png");
+            }
+            else
+            {
+                printf("Opcao invalida\n");
             }
         }
-        else
-        {
-            printf("A imagem precisa ser do tipo Gray, converta-a e retorne\n");
-            system("pause");
-        }
-
             break;
         case 7:
             printf("Saindo do programa...\n");
@@ -255,12 +224,12 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
         add_image_to_history_rgb(history, imrgb);
         break;
     case 7:
-        printf("Desfazendo alteracao\n");
+        printf("Desfazendo alteração\n");
         desfazer_rgb(history, imrgb);
 
         break;
     case 8:
-        printf("Refazendo alteracao\n");
+        printf("Refazendo alteração\n");
         refazer_rgb(history, imrgb);
         break;
     default:
@@ -307,11 +276,11 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
         add_image_to_history_gray(history, imgray);
         break;
     case 7:
-        printf("Desfazendo alteracao\n");
+        printf("Desfazendo alteração\n");
         desfazer_gray(history, imgray);
         break;
     case 8:
-        printf("Refazendo alteracao\n");
+        printf("Refazendo alteração\n");
         refazer_gray(history, imgray);
         break;
     default:
@@ -325,40 +294,26 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
     abrir_imagem("image_rgb.png");
 }
 
-
 void mostrar_menu()
 {
-    system("cls || clear");
     printf("========================================\n");
-    printf("          EDITOR DE IMAGENS   EaFotO    \n");
+    printf("          EDITOR DE IMAGENS UFHOTOPI    \n");
     printf("========================================\n");
-    printf("               ____ ______              \n");
-    printf("              / __ \\|____|             \n");
-    printf("             | |  | | |__               \n");
-    printf("             | |  | |  __|              \n");
-    printf("             | |__| | |_____            \n");
-    printf("              \\____/|______|           \n");
-    printf("               _______                  \n");
-    printf("              |   _   |                 \n");
-    printf("              |  |_|  |                 \n");
-    printf("              |_______|                 \n");
-    printf("                                        \n");
     printf("1 - Aplicar Efeitos RGB\n");
     printf("2 - Converter para Preto e Branco\n");
     printf("3 - Aplicar Efeitos Preto e Branco\n");
     printf("4 - Exibir Resultado\n");
     printf("5 - Sortear efeito RGB\n");
-    printf("6 - Sortear efeito GRAY\n");
+    printf("6 - Sortear efeito GRAY\n");;
     printf("7 - Sair da aplicacao\n");
     printf("========================================\n");
 }
-
 
 // chamar_python("utils/image_utils.py", "image_rgb_from_latest_txt", "utils/input_imagem_final.txt", "ritinha.png");
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path)
 {
     char command[256];
-    snprintf(command, sizeof(command), "python3 %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
+    snprintf(command, sizeof(command), "python %s %s \"%s\" \"%s\"", script, func, input_path, output_path);
     system(command);
 }
 
@@ -502,7 +457,7 @@ void aplicar_flip_horizontal_gray(ImageGray *imgray)
 void abrir_imagem(const char *image_path)
 {
     char command[256];
-    snprintf(command, sizeof(command), "python3 utils/abrir_imagem_sistemas.py %s", image_path);
+    snprintf(command, sizeof(command), "python utils/abrir_imagem_sistemas.py %s", image_path);
     int ret = system(command);
     if (ret != 0)
     {
