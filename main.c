@@ -22,18 +22,10 @@ void aplicar_flip_horizontal_gray(ImageGray *imgray);
 void exibir_resultado_rgb();
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history);
 void mostrar_menu();
-void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history);
 void sortear_efeito_rgb(ImageRGB *imrgb, ImageHistory *history);
 void sortear_efeito_gray(ImageGray *imgray, ImageHistoryGray *history);
 void abrir_imagem(const char *image_path);
-
 void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
-
-ImageRGB imrgb;
-ImageGray imgray;
-ImageHistory *history_rgb;
-ImageHistoryGray *history_gray;
-
 void on_apply_effects_rgb(GtkWidget *widget, gpointer data);
 void on_convert_to_gray(GtkWidget *widget, gpointer data);
 void on_apply_effects_gray(GtkWidget *widget, gpointer data);
@@ -44,35 +36,7 @@ void on_effect_selected_rgb(GtkWidget *widget, gpointer data);
 void on_effect_selected_gray(GtkWidget *widget, gpointer data);
 void on_sort_effect_rgb(GtkWidget *widget, gpointer data);
 void on_sort_effect_gray(GtkWidget *widget, gpointer data);
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <gtk/gtk.h>
-#include "image.h"
-
-#define WINDOW_WIDTH 1910
-#define WINDOW_HEIGHT 900
-
-void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb);
 void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history);
-void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history);
-void exibir_resultado_rgb();
-void abrir_imagem(const char *image_path);
-void chamar_python(const char *script, const char *func, const char *input_path, const char *output_path);
-void mostrar_menu();
-void show_effects_menu_rgb();
-void show_effects_menu_gray();
-void on_apply_effects_rgb(GtkWidget *widget, gpointer data);
-void on_convert_to_gray(GtkWidget *widget, gpointer data);
-void on_apply_effects_gray(GtkWidget *widget, gpointer data);
-void on_show_result(GtkWidget *widget, gpointer data);
-void on_sort_effect_rgb(GtkWidget *widget, gpointer data);
-void on_sort_effect_gray(GtkWidget *widget, gpointer data);
-void on_effect_selected_rgb(GtkWidget *widget, gpointer data);
-void on_effect_selected_gray(GtkWidget *widget, gpointer data);
-
 void show_effects_sort_rgb();
 void show_effects_sort_gray();
 
@@ -81,16 +45,20 @@ ImageGray imgray;
 ImageHistory *history_rgb;
 ImageHistoryGray *history_gray;
 
-int main(int argc, char *argv[])
-{
+GtkWidget *button_apply_effects_rgb;
+GtkWidget *button_sort_effect_rgb;
+GtkWidget *button_apply_effects_gray;
+GtkWidget *button_sort_effect_gray;
+GtkWidget *button_convert_to_gray;
+
+int main(int argc, char *argv[]) {
     srand(time(NULL));
     FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
 
     history_rgb = create_image_history();
     history_gray = create_image_history_gray();
 
-    if (arq == NULL)
-    {
+    if (arq == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
@@ -113,18 +81,19 @@ int main(int argc, char *argv[])
 
     // Define a espessura da borda do grid e espaçamento interno
     gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
-    gtk_grid_set_column_spacing(GTK_GRID(grid), 20);  // Espaçamento entre as colunas
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
 
     // Cria os botões e os adiciona ao grid
-    GtkWidget *button_apply_effects_rgb = gtk_button_new_with_label("Aplicar Efeitos RGB");
+    button_apply_effects_rgb = gtk_button_new_with_label("Aplicar Efeitos RGB");
     g_signal_connect(button_apply_effects_rgb, "clicked", G_CALLBACK(on_apply_effects_rgb), NULL);
     gtk_grid_attach(GTK_GRID(grid), button_apply_effects_rgb, 0, 0, 1, 1);
 
-    GtkWidget *button_apply_effects_gray = gtk_button_new_with_label("Aplicar Efeitos Preto e Branco");
+    button_apply_effects_gray = gtk_button_new_with_label("Aplicar Efeitos Preto e Branco");
     g_signal_connect(button_apply_effects_gray, "clicked", G_CALLBACK(on_apply_effects_gray), NULL);
     gtk_grid_attach(GTK_GRID(grid), button_apply_effects_gray, 1, 0, 1, 1);
+    gtk_widget_set_sensitive(button_apply_effects_gray, FALSE);
 
-    GtkWidget *button_convert_to_gray = gtk_button_new_with_label("Converter para Preto e Branco");
+    button_convert_to_gray = gtk_button_new_with_label("Converter para Preto e Branco");
     g_signal_connect(button_convert_to_gray, "clicked", G_CALLBACK(on_convert_to_gray), NULL);
     gtk_grid_attach(GTK_GRID(grid), button_convert_to_gray, 2, 0, 1, 1);
 
@@ -132,13 +101,14 @@ int main(int argc, char *argv[])
     g_signal_connect(button_show_result, "clicked", G_CALLBACK(on_show_result), NULL);
     gtk_grid_attach(GTK_GRID(grid), button_show_result, 3, 0, 1, 1);
 
-    GtkWidget *button_sort_effect_rgb = gtk_button_new_with_label("Sortear Efeito RGB");
+    button_sort_effect_rgb = gtk_button_new_with_label("Sortear Efeito RGB");
     g_signal_connect(button_sort_effect_rgb, "clicked", G_CALLBACK(show_effects_sort_rgb), NULL);
     gtk_grid_attach(GTK_GRID(grid), button_sort_effect_rgb, 4, 0, 1, 1);
 
-    GtkWidget *button_sort_effect_gray = gtk_button_new_with_label("Sortear Efeito Preto e Branco");
+    button_sort_effect_gray = gtk_button_new_with_label("Sortear Efeito Preto e Branco");
     g_signal_connect(button_sort_effect_gray, "clicked", G_CALLBACK(show_effects_sort_gray), NULL);
     gtk_grid_attach(GTK_GRID(grid), button_sort_effect_gray, 5, 0, 1, 1);
+    gtk_widget_set_sensitive(button_sort_effect_gray, FALSE);
 
     GtkWidget *button_exit = gtk_button_new_with_label("Sair da aplicação");
     g_signal_connect(button_exit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
@@ -153,7 +123,6 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
 
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 {
@@ -420,6 +389,12 @@ void on_convert_to_gray(GtkWidget *widget, gpointer data)
     salvar_imagem_arkv(&imgray, input_txt);
     chamar_python("utils/image_utils.py", "image_gray_from_txt", "utils/input_imagem_final.txt", "utils/imagem_final.png");
     add_image_to_history_gray(history_gray, &imgray);
+
+    gtk_widget_set_sensitive(button_apply_effects_rgb, FALSE);
+    gtk_widget_set_sensitive(button_sort_effect_rgb, FALSE);
+    gtk_widget_set_sensitive(button_apply_effects_gray, TRUE);
+    gtk_widget_set_sensitive(button_sort_effect_gray, TRUE);
+
     abrir_imagem("image_rgb.png");
 }
 

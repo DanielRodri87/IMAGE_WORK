@@ -1,3 +1,10 @@
+**Comando para rodar:**
+```bash
+gcc main.c image.c -o main `pkg-config --cflags --libs gtk+-3.0`
+```
+
+
+
 **Descrição do Trabalho: Implementação de Operações de Manipulação de Imagens com Histórico de Reversão**
 
 **Instrucoes para Controle de versão**
