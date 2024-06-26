@@ -5,8 +5,8 @@
 #include <gtk/gtk.h>
 #include "image.h"
 
-#define WINDOW_WIDTH 1900
-#define WINDOW_HEIGHT 900
+#define WINDOW_WIDTH 1910
+#define WINDOW_HEIGHT 100
 
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb);
 void aplicar_blur_rgb(ImageRGB *imrgb);
@@ -39,6 +39,7 @@ void on_sort_effect_gray(GtkWidget *widget, gpointer data);
 void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history);
 void show_effects_sort_rgb();
 void show_effects_sort_gray();
+void update_status(const char *message);
 
 ImageRGB imrgb;
 ImageGray imgray;
@@ -50,15 +51,19 @@ GtkWidget *button_sort_effect_rgb;
 GtkWidget *button_apply_effects_gray;
 GtkWidget *button_sort_effect_gray;
 GtkWidget *button_convert_to_gray;
+GtkWidget *label_status;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     srand(time(NULL));
+
     FILE *arq = fopen("utils/input_image_example_RGB.txt", "r");
 
     history_rgb = create_image_history();
     history_gray = create_image_history_gray();
 
-    if (arq == NULL) {
+    if (arq == NULL)
+    {
         printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
@@ -67,58 +72,99 @@ int main(int argc, char *argv[]) {
     system("python3 utils/select_image.py");
     criar_imagem_rgb(arq, &imrgb);
     add_image_to_history_rgb(history_rgb, &imrgb);
-
     gtk_init(&argc, &argv);
 
+    // Carregar o arquivo CSS
+    GtkCssProvider *cssProvider = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(cssProvider, "frontend/style.css", NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+                                              GTK_STYLE_PROVIDER(cssProvider),
+                                              GTK_STYLE_PROVIDER_PRIORITY_USER);
+
+    // Criar janela principal
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Editor de Imagens EaFotO");
     gtk_window_set_default_size(GTK_WINDOW(window), WINDOW_WIDTH, WINDOW_HEIGHT);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    // Cria um grid para organizar os botões
+    // Criar container vertical para organização dos widgets
+    GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    gtk_container_add(GTK_CONTAINER(window), vbox);
+
+    // Criar grid para os botões
     GtkWidget *grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), grid);
-
-    // Define a espessura da borda do grid e espaçamento interno
+    gtk_box_pack_start(GTK_BOX(vbox), grid, TRUE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
-    gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 10); // Espaço reduzido entre colunas
 
-    // Cria os botões e os adiciona ao grid
-    button_apply_effects_rgb = gtk_button_new_with_label("Aplicar Efeitos RGB");
+    // Criar botões com tamanho ajustado
+    button_apply_effects_rgb = gtk_button_new_with_label("Aplicar RGB");
     g_signal_connect(button_apply_effects_rgb, "clicked", G_CALLBACK(on_apply_effects_rgb), NULL);
+    gtk_widget_set_hexpand(button_apply_effects_rgb, TRUE);    // Expansão horizontal
+    gtk_widget_set_margin_bottom(button_apply_effects_rgb, 5); // Margem inferior
     gtk_grid_attach(GTK_GRID(grid), button_apply_effects_rgb, 0, 0, 1, 1);
 
-    button_apply_effects_gray = gtk_button_new_with_label("Aplicar Efeitos Preto e Branco");
+    button_apply_effects_gray = gtk_button_new_with_label("Aplicar P&B");
     g_signal_connect(button_apply_effects_gray, "clicked", G_CALLBACK(on_apply_effects_gray), NULL);
+    gtk_widget_set_hexpand(button_apply_effects_gray, TRUE);    // Expansão horizontal
+    gtk_widget_set_margin_bottom(button_apply_effects_gray, 5); // Margem inferior
     gtk_grid_attach(GTK_GRID(grid), button_apply_effects_gray, 1, 0, 1, 1);
-    gtk_widget_set_sensitive(button_apply_effects_gray, FALSE);
 
-    button_convert_to_gray = gtk_button_new_with_label("Converter para Preto e Branco");
+    button_convert_to_gray = gtk_button_new_with_label("Converter P&B");
     g_signal_connect(button_convert_to_gray, "clicked", G_CALLBACK(on_convert_to_gray), NULL);
+    gtk_widget_set_hexpand(button_convert_to_gray, TRUE);    // Expansão horizontal
+    gtk_widget_set_margin_bottom(button_convert_to_gray, 5); // Margem inferior
     gtk_grid_attach(GTK_GRID(grid), button_convert_to_gray, 2, 0, 1, 1);
 
     GtkWidget *button_show_result = gtk_button_new_with_label("Exibir Resultado");
     g_signal_connect(button_show_result, "clicked", G_CALLBACK(on_show_result), NULL);
+    gtk_widget_set_hexpand(button_show_result, TRUE);    // Expansão horizontal
+    gtk_widget_set_margin_bottom(button_show_result, 5); // Margem inferior
     gtk_grid_attach(GTK_GRID(grid), button_show_result, 3, 0, 1, 1);
 
-    button_sort_effect_rgb = gtk_button_new_with_label("Sortear Efeito RGB");
+    button_sort_effect_rgb = gtk_button_new_with_label("Sortear RGB");
     g_signal_connect(button_sort_effect_rgb, "clicked", G_CALLBACK(show_effects_sort_rgb), NULL);
+    gtk_widget_set_hexpand(button_sort_effect_rgb, TRUE);    // Expansão horizontal
+    gtk_widget_set_margin_bottom(button_sort_effect_rgb, 5); // Margem inferior
     gtk_grid_attach(GTK_GRID(grid), button_sort_effect_rgb, 4, 0, 1, 1);
 
-    button_sort_effect_gray = gtk_button_new_with_label("Sortear Efeito Preto e Branco");
+    button_sort_effect_gray = gtk_button_new_with_label("Sortear P&B");
     g_signal_connect(button_sort_effect_gray, "clicked", G_CALLBACK(show_effects_sort_gray), NULL);
+    gtk_widget_set_hexpand(button_sort_effect_gray, TRUE);    // Expansão horizontal
+    gtk_widget_set_margin_bottom(button_sort_effect_gray, 5); // Margem inferior
     gtk_grid_attach(GTK_GRID(grid), button_sort_effect_gray, 5, 0, 1, 1);
+
+    // Inicialmente desativar botões de P&B e Sortear P&B
+    gtk_widget_set_sensitive(button_apply_effects_gray, FALSE);
     gtk_widget_set_sensitive(button_sort_effect_gray, FALSE);
 
-    GtkWidget *button_exit = gtk_button_new_with_label("Sair da aplicação");
+    GtkWidget *button_exit = gtk_button_new_with_label("Sair");
     g_signal_connect(button_exit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
+    gtk_widget_set_hexpand(button_exit, TRUE);    // Expansão horizontal
+    gtk_widget_set_margin_bottom(button_exit, 5); // Margem inferior
     gtk_grid_attach(GTK_GRID(grid), button_exit, 6, 0, 1, 1);
 
-    // Ajusta o tamanho homogêneo dos botões no grid
-    gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
+    // Criar label de status
+    label_status = gtk_label_new("Status: Pronto");
+    gtk_widget_set_name(label_status, "status");
+    gtk_box_pack_end(GTK_BOX(vbox), label_status, FALSE, FALSE, 0);
+
+
+    // Carregar a logo com tamanho específico
+    GtkWidget *logo_image = gtk_image_new_from_file("frontend/logo_editor.png");
+    gtk_image_set_pixel_size(GTK_IMAGE(logo_image), 250); // Ajustar para 850x850 pixels
+
+    // Criar um box para centralizar a logo
+    GtkWidget *logo_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), logo_box, FALSE, FALSE, 0);
+    gtk_widget_set_halign(logo_box, GTK_ALIGN_CENTER);
+
+    // Adicionar a logo ao box
+    gtk_container_add(GTK_CONTAINER(logo_box), logo_image);
+    gtk_widget_show_all(logo_box);
 
     gtk_widget_show_all(window);
-
+    // Iniciar loop principal GTK
     gtk_main();
 
     return 0;
@@ -139,42 +185,40 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
     switch (efeito)
     {
     case 1:
-        printf("Aplicando Blur RGB\n");
+        update_status("Blur RGB aplicado com sucesso");
         aplicar_blur_rgb(imrgb);
         add_image_to_history_rgb(history, imrgb);
         break;
     case 2:
-        printf("Aplicando CLAHE RGB\n");
+        update_status("CLAHE RGB aplicado com sucesso");
         aplicar_clahe_rgb(imrgb);
         add_image_to_history_rgb(history, imrgb);
         break;
     case 3:
-        printf("Aplicando Transpose RGB\n");
+        update_status("Transpose RGB aplicado com sucesso");
         aplicar_transpose_rgb(imrgb);
         add_image_to_history_rgb(history, imrgb);
         break;
     case 4:
-        printf("Aplicando Flip Vertical RGB\n");
+        update_status("Flip Vertical RGB aplicado com sucesso");
         aplicar_flip_vertical_rgb(imrgb);
         add_image_to_history_rgb(history, imrgb);
         break;
     case 5:
-        remove("utils/imagem_final.png");
-        printf("Aplicando Flip Horizontal RGB\n");
+        update_status("Flip Horizontal RGB aplicado com sucesso");
         aplicar_flip_horizontal_rgb(imrgb);
         add_image_to_history_rgb(history, imrgb);
         break;
     case 7:
-        printf("Desfazendo alteracao\n");
+        update_status("Desfazendo alteração");
         desfazer_rgb(history, imrgb);
-
         break;
     case 8:
-        printf("Refazendo alteracao\n");
+        update_status("Refazendo alteração");
         refazer_rgb(history, imrgb);
         break;
     default:
-        printf("Opcao invalida\n");
+        update_status("Opção inválida");
         return;
     }
 
@@ -192,36 +236,36 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
     switch (efeito)
     {
     case 1:
-        printf("Aplicando Blur Gray\n");
+        update_status("Blur Gray aplicado com sucesso");
         aplicar_blur_gray(imgray);
         add_image_to_history_gray(history, imgray);
         break;
     case 2:
-        printf("Aplicando CLAHE Gray\n");
+        update_status("CLAHE Gray aplicado com sucesso");
         aplicar_clahe_gray(imgray);
         add_image_to_history_gray(history, imgray);
         break;
     case 3:
-        printf("Aplicando Transpose Gray\n");
+        update_status("Transpose Gray aplicado com sucesso");
         aplicar_transpose_gray(imgray);
         add_image_to_history_gray(history, imgray);
         break;
     case 4:
-        printf("Aplicando Flip Vertical Gray\n");
+        update_status("Flip Vertical Gray aplicado com sucesso");
         aplicar_flip_vertical_gray(imgray);
         add_image_to_history_gray(history, imgray);
         break;
     case 5:
-        printf("Aplicando Flip Horizontal Gray\n");
+        update_status("Flip Horizontal Gray aplicado com sucesso");
         aplicar_flip_horizontal_gray(imgray);
         add_image_to_history_gray(history, imgray);
         break;
     case 7:
-        printf("Desfazendo alteracao\n");
+        update_status("Desfazendo alteração");
         desfazer_gray(history, imgray);
         break;
     case 8:
-        printf("Refazendo alteracao\n");
+        update_status("Refazendo alteracao\n");
         refazer_gray(history, imgray);
         break;
     default:
@@ -471,7 +515,6 @@ void show_effects_menu_rgb()
     gtk_widget_show_all(dialog);
 }
 
-
 void show_effects_menu_gray()
 {
     GtkWidget *dialog, *content_area, *grid;
@@ -532,9 +575,8 @@ void show_effects_menu_gray()
     gtk_widget_set_vexpand(button8, TRUE);
     gtk_grid_attach(GTK_GRID(grid), button8, 1, 5, 1, 1);
 
-    gtk_widget_show_all(dialog);   
+    gtk_widget_show_all(dialog);
 }
-
 
 void show_effects_sort_rgb()
 {
@@ -558,8 +600,6 @@ void show_effects_sort_rgb()
     gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
     gtk_container_add(GTK_CONTAINER(content_area), grid);
 
-   
-
     button1 = gtk_button_new_with_label("Sortear Novamente");
     g_signal_connect(button1, "clicked", G_CALLBACK(on_sort_effect_rgb), GINT_TO_POINTER(1));
     gtk_grid_attach(GTK_GRID(grid), button1, 0, 0, 1, 1);
@@ -576,12 +616,13 @@ void show_effects_sort_rgb()
     g_signal_connect(button4, "clicked", G_CALLBACK(on_sort_effect_rgb), GINT_TO_POINTER(4));
     gtk_grid_attach(GTK_GRID(grid), button4, 1, 1, 1, 1);
 
-    image = gtk_image_new_from_file("dado_imagem.png");
+    image = gtk_image_new_from_file("frontend/dado_imagem.png");
     gtk_grid_attach(GTK_GRID(grid), image, 0, 2, 2, 1);
+
+    g_signal_connect_swapped(button4, "clicked", G_CALLBACK(gtk_widget_destroy), dialog);
 
     gtk_widget_show_all(dialog);
 }
-
 
 void show_effects_sort_gray()
 {
@@ -621,12 +662,13 @@ void show_effects_sort_gray()
     g_signal_connect(button4, "clicked", G_CALLBACK(on_sort_effect_gray), GINT_TO_POINTER(4));
     gtk_grid_attach(GTK_GRID(grid), button4, 1, 1, 1, 1);
 
-    image = gtk_image_new_from_file("dado_imagem.png");
+    image = gtk_image_new_from_file("frontend/dado_imagem.png");
     gtk_grid_attach(GTK_GRID(grid), image, 0, 2, 2, 1);
+
+    g_signal_connect_swapped(button4, "clicked", G_CALLBACK(gtk_widget_destroy), dialog);
 
     gtk_widget_show_all(dialog);
 }
-
 
 void on_sort_effect_rgb(GtkWidget *widget, gpointer data)
 {
@@ -637,12 +679,15 @@ void on_sort_effect_rgb(GtkWidget *widget, gpointer data)
     switch (action)
     {
     case 1:
+        update_status("Sorteando efeito RGB");
         sortear_efeito_rgb(&imrgb, history_rgb);
         break;
     case 2:
+        update_status("Desfazendo alteração");
         aplicar_efeito_rgb(&imrgb, 7, history_rgb);
         break;
     case 3:
+        update_status("Refazendo alteração");
         aplicar_efeito_rgb(&imrgb, 8, history_rgb);
         break;
     case 4:
@@ -687,4 +732,9 @@ void on_effect_selected_gray(GtkWidget *widget, gpointer data)
 {
     int effect = GPOINTER_TO_INT(data);
     aplicar_efeito_gray(&imgray, effect, history_gray);
+}
+
+void update_status(const char *message)
+{
+    gtk_label_set_text(GTK_LABEL(label_status), message);
 }
