@@ -538,7 +538,7 @@ void show_effects_menu_gray()
 
 void show_effects_sort_rgb()
 {
-    GtkWidget *dialog, *content_area, *grid;
+    GtkWidget *dialog, *content_area, *grid, *image;
     GtkWidget *button1, *button2, *button3, *button4;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -558,6 +558,8 @@ void show_effects_sort_rgb()
     gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
     gtk_container_add(GTK_CONTAINER(content_area), grid);
 
+   
+
     button1 = gtk_button_new_with_label("Sortear Novamente");
     g_signal_connect(button1, "clicked", G_CALLBACK(on_sort_effect_rgb), GINT_TO_POINTER(1));
     gtk_grid_attach(GTK_GRID(grid), button1, 0, 0, 1, 1);
@@ -574,13 +576,16 @@ void show_effects_sort_rgb()
     g_signal_connect(button4, "clicked", G_CALLBACK(on_sort_effect_rgb), GINT_TO_POINTER(4));
     gtk_grid_attach(GTK_GRID(grid), button4, 1, 1, 1, 1);
 
+    image = gtk_image_new_from_file("dado_imagem.png");
+    gtk_grid_attach(GTK_GRID(grid), image, 0, 2, 2, 1);
+
     gtk_widget_show_all(dialog);
 }
 
 
 void show_effects_sort_gray()
 {
-    GtkWidget *dialog, *content_area, *grid;
+    GtkWidget *dialog, *content_area, *grid, *image;
     GtkWidget *button1, *button2, *button3, *button4;
     GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
 
@@ -615,6 +620,9 @@ void show_effects_sort_gray()
     button4 = gtk_button_new_with_label("Voltar ao Menu Principal");
     g_signal_connect(button4, "clicked", G_CALLBACK(on_sort_effect_gray), GINT_TO_POINTER(4));
     gtk_grid_attach(GTK_GRID(grid), button4, 1, 1, 1, 1);
+
+    image = gtk_image_new_from_file("dado_imagem.png");
+    gtk_grid_attach(GTK_GRID(grid), image, 0, 2, 2, 1);
 
     gtk_widget_show_all(dialog);
 }
