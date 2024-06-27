@@ -8,7 +8,11 @@ sudo apt-get install python3-tk
 ```bash
 pip install -r requirements.txt
 ```
+3. Instalar Gtk
 
+```bash
+sudo apt install libgtk-3-dev
+```
 **Comando para rodar:**
 1. Criando Executável
 ```bash
@@ -18,6 +22,7 @@ gcc main.c image.c -o main `pkg-config --cflags --libs gtk+-3.0`
 ```bash
 ./main
 ```
+
 
 ---
 
