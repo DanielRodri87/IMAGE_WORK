@@ -1,0 +1,60 @@
+/* Estilos para a janela principal */
+window {
+    background-color: #131E24; /* azul escuro para o cabeçalho e rodapé */
+    color: #000000;
+    border-radius: 1px;
+
+}
+
+/* Estilos para o cabeçalho */
+header {
+    background-color: #ffffff; /* azul mais escuro para o cabeçalho */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* sombra suave */
+    padding: 10px;
+}
+
+/* Estilos para o rodapé */
+footer {
+    background-color: #ffffff; /* azul mais escuro para o rodapé */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2); /* sombra suave para baixo */
+    padding: 10px;
+}
+
+/* Estilos para o grid dos botões */
+grid {
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f4f4f4; /* azul escuro para o grid */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* sombra mais intensa */
+}
+
+/* Estilos para os botões */
+button {
+    font-size: 16px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background-color: #50EDF5; /* azul mais claro para os botões */
+    color: #000000;
+    border: none;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #5d58ec; /* tom mais claro ao passar o mouse */
+}
+
+button:active {
+    background-color: #5d58ec; /* tom mais escuro ao clicar */
+}
+
+/* Estilos para o footer (label de status) */
+label#status {
+    background-color: #e9e9e9; /* azul escuro para o label de status */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #000000;
+}

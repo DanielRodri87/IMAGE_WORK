@@ -1,3 +1,31 @@
+**Instalando Requerimentos básicos**
+1. TKinter
+```bash
+sudo apt-get install python3-tk
+```
+2. Libs Python
+
+```bash
+pip install -r requirements.txt
+```
+3. Instalar Gtk
+
+```bash
+sudo apt install libgtk-3-dev
+```
+**Comando para rodar:**
+1. Criando Executável
+```bash
+gcc main.c image.c -o main `pkg-config --cflags --libs gtk+-3.0`
+```
+2. Rodando
+```bash
+./main
+```
+
+
+---
+
 **Descrição do Trabalho: Implementação de Operações de Manipulação de Imagens com Histórico de Reversão**
 
 **Instrucoes para Controle de versão**

@@ -35,14 +35,14 @@ start_color = dominant_colors[0]
 end_color = dominant_colors[1] if len(dominant_colors) > 1 else dominant_colors[0]
 
 # Redimensionar a imagem mantendo a proporção
-img.thumbnail((1900, 900), Image.Resampling.LANCZOS)
+img.thumbnail((1450, 700), Image.Resampling.LANCZOS)
 
 # Criar um fundo com degradê radial
-background = create_radial_gradient(1900, 900, start_color, end_color)
+background = create_radial_gradient(1450, 700, start_color, end_color)
 
 # Calcular a posição para centralizar a imagem redimensionada
-x_offset = (1900 - img.width) // 2
-y_offset = (900 - img.height) // 2
+x_offset = (1450 - img.width) // 2
+y_offset = (700 - img.height) // 2
 
 # Colar a imagem redimensionada no fundo
 background.paste(img, (x_offset, y_offset))
