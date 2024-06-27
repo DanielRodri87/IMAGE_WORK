@@ -1,3 +1,5 @@
+# Operação de edição de Imagens com Histórico de alterações
+
 **Instalando Requerimentos básicos**
 1. TKinter
 ```bash
@@ -8,7 +10,11 @@ sudo apt-get install python3-tk
 ```bash
 pip install -r requirements.txt
 ```
+3. Instalar Gtk
 
+```bash
+sudo apt install libgtk-3-dev
+```
 **Comando para rodar:**
 1. Criando Executável
 ```bash
@@ -18,6 +24,7 @@ gcc main.c image.c -o main `pkg-config --cflags --libs gtk+-3.0`
 ```bash
 ./main
 ```
+
 
 ---
 
@@ -59,3 +66,7 @@ O objetivo deste projeto é desenvolver uma solução para manipulação de imag
    - É importante observar atentamente os requisitos mencionados anteriormente para garantir que o sistema atenda às expectativas e funcione conforme o esperado.
 
 
+**Integrantes:**
+- [![Daniel Rodrigues](https://img.shields.io/badge/DanielRodri87-GitHub-blueviolet)](https://github.com/DanielRodri87)
+- [![Rita de Cássia](https://img.shields.io/badge/ritar0drigues-GitHub-blueviolet)](https://github.com/ritar0drigues)
+- [Pedro]

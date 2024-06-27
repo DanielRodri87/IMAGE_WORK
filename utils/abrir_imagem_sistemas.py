@@ -26,6 +26,7 @@ def create_radial_gradient(width, height, start_color, end_color):
             gradient.putpixel((x, y), (r, g, b))
     return gradient
 
+
 # Abrir a imagem original
 img = Image.open("image_rgb.png")
 
