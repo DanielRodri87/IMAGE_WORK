@@ -210,11 +210,11 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
         add_image_to_history_rgb(history, imrgb);
         break;
     case 7:
-        update_status("Desfazendo alteração");
+        update_status("Alteração desfeita");
         desfazer_rgb(history, imrgb);
         break;
     case 8:
-        update_status("Refazendo alteração");
+        update_status("Alteração refeita");
         refazer_rgb(history, imrgb);
         break;
     default:
@@ -439,6 +439,7 @@ void on_convert_to_gray(GtkWidget *widget, gpointer data)
     gtk_widget_set_sensitive(button_apply_effects_gray, TRUE);
     gtk_widget_set_sensitive(button_sort_effect_gray, TRUE);
 
+    update_status("Imagem convertida para Preto e Branco");
     abrir_imagem("image_rgb.png");
 }
 
