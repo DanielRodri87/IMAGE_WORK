@@ -1,7 +1,8 @@
 from PIL import Image
 import os
 
-
+# Essa função converte uma imagem para um arquivo de texto
+# This function converts an image to a text file
 def txt_from_image_gray(image_path, output_path, gray=True):
     try:
         img = Image.open(image_path)
@@ -24,7 +25,8 @@ def txt_from_image_gray(image_path, output_path, gray=True):
     except Exception as e:
         print(f"Erro ao converter imagem para texto: {e}")
 
-
+# Converte uma imagem GRAY para um arquivo de texto
+# Converts an GRAY image to a text file
 def image_gray_from_txt(txt_path, output_path):
     try:
         with open(txt_path, 'r') as file:
@@ -45,6 +47,8 @@ def image_gray_from_txt(txt_path, output_path):
     except Exception as e:
         print(f"Erro ao converter texto para imagem cinza: {e}")
 
+# Converte uma imagem RGB para um arquivo de texto
+# Converts an RGB image to a text file
 def image_rgb_from_txt(txt_path, output_path):
     try:
         with open(txt_path, 'r') as file:
@@ -65,6 +69,9 @@ def image_rgb_from_txt(txt_path, output_path):
     except Exception as e:
         print(f"Erro ao converter texto para imagem RGB: {e}")
 
+
+# Essa função converte o último arquivo de texto em uma imagem cinza. Essa função adicional, não foi solicitada no trabalho, porém foi necessária para o controle de arquivos na lógica do programa.
+# This function converts the last text file to a gray image. This additional function was not requested in the work, however it was necessary for file control in the program logic.
 def image_rgb_from_latest_txt(directory, output_path):
     try:
         files = os.listdir(directory)
@@ -96,7 +103,7 @@ def image_rgb_from_latest_txt(directory, output_path):
         print(f"Erro ao processar o último arquivo de texto RGB: {e}")
 
 def main():
-    image_rgb_from_latest_txt("utils", "image_rgb.png")
+    image_rgb_from_latest_txt("utils", "out_image.png")
 
 if __name__ == "__main__":
     main()
