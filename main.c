@@ -11,14 +11,14 @@
 
 // Funções necessárias - Required functions:
 void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb); // Lê uma imagem RGB de um arqv e armazena os dados da imagem - Reads an RGB image from a file and stores the image data
-void aplicar_blur_rgb(ImageRGB *imrgb); // Aplica o efeito blur à imagem RGB representada pelo ponteiro - Applies the blur effect to the RGB image represented by the pointer
+void aplicar_blur_rgb(ImageRGB *imrgb, int intensidade); // Aplica o efeito blur à imagem RGB representada pelo ponteiro - Applies the blur effect to the RGB image represented by the pointer
 void aplicar_clahe_rgb(ImageRGB *imrgb); // Aplica o efeito CLAHE à imagem RGB - Applies the CLAHE effect to the RGB image
 void aplicar_transpose_rgb(ImageRGB *imrgb); // Transpõe a imagem RGB - Transposes the RGB image
 void aplicar_flip_vertical_rgb(ImageRGB *imrgb); // Inverte a imagem RGB verticalmente - Flips the RGB image vertically
 void aplicar_flip_horizontal_rgb(ImageRGB *imrgb); // Inverte a imagem RGB horizontalmente - Flips the RGB image horizontally
 void aplicar_transpose_gray(ImageGray *imgray); // Transpõe a imagem gray - Transposes the grayscale image
 void aplicar_clahe_gray(ImageGray *imgray); // Aplica o efeito CLAHE na imagem gray - Applies the CLAHE effect to the grayscale image
-void aplicar_blur_gray(ImageGray *imgray); // Aplica o efeito blur na imagem gray - Applies the blur effect to the grayscale image
+void aplicar_blur_gray(ImageGray *imgray, int intensidade); // Aplica o efeito blur na imagem gray - Applies the blur effect to the grayscale image
 void aplicar_flip_vertical_gray(ImageGray *imgray); // Inverte a imagem gray verticalmente - Flips the grayscale image vertically
 void aplicar_flip_horizontal_gray(ImageGray *imgray); // Inverte a imagem gray horizontalmente - Flips the grayscale image horizontally
 void exibir_resultado_rgb(); // Exibe o resultado da imagem RGB processada na interface gráfica - Displays the processed RGB image result in the graphical interface
@@ -42,6 +42,9 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history); // 
 void show_effects_sort_rgb(); // Exibe um menu para sortear e aplicar efeitos aleatórios em uma imagem RGB - Displays a menu to randomly select and apply effects to an RGB image
 void show_effects_sort_gray(); // Exibe um menu para sortear e aplicar efeitos aleatórios em uma imagem gray - Displays a menu to randomly select and apply effects to a grayscale image
 void update_status(const char *message); // Atualiza a mensagem de status na interface gráfica, exibindo informações ou feedback para o usuário - Updates the status message in the graphical interface, displaying information or feedback to the user
+void on_intensity_selected(GtkWidget *widget, gpointer data); // Função onde o usuário seleciona a intensidade do efeito de blur - Function where the user selects the intensity of the blur effect
+void on_intensity_selected_gray(GtkWidget *widget, gpointer data); // Função onde o usuário seleciona a intensidade do efeito de blur em tons de cinza - Function where the user selects the intensity of the blur effect in grayscale
+
 
 ImageRGB imrgb; // Variável que representa uma imagem RGB - Variable representing an RGB image
 ImageGray imgray; // Variável que representa uma imagem gray - Variable representing a grayscale image
@@ -54,6 +57,8 @@ GtkWidget *button_apply_effects_gray; // Botão que aplica os efeitos escolhidos
 GtkWidget *button_sort_effect_gray; // Botão que sorteia e aplica um efeito aleatório na imagem gray - Button that randomly selects and applies an effect to the grayscale image
 GtkWidget *button_convert_to_gray; // Botão que converte a imagem RGB para uma imagem gray - Button that converts the RGB image to a grayscale image
 GtkWidget *label_status; // Rótulo usado para exibir mensagens de status - Label used to display status messages
+GtkWidget *window;
+
 
 int main(int argc, char *argv[])
 {
@@ -218,25 +223,97 @@ void criar_imagem_rgb(FILE *arq, ImageRGB *imrgb)
 
     // Abre a imagem resultante para visualização
     // Opens the resulting image for viewing
-    abrir_imagem("image_rgb.png");
+    abrir_imagem("out_image.png");
+}
+
+void show_blur_intensity_dialog(GtkWidget *parent, gpointer imrgb, gpointer history) {
+ // Criando uma janela de diálogo
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Selecione a intensidade do Blur",
+                                                    GTK_WINDOW(parent),
+                                                    GTK_DIALOG_MODAL,
+                                                    "Cancelar",
+                                                    GTK_RESPONSE_CANCEL,
+                                                    NULL);
+
+    // Adicionando botões com os valores de intensidade
+    GtkWidget *button_5 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Fraco", GTK_RESPONSE_OK);
+    GtkWidget *button_10 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Médio", GTK_RESPONSE_OK);
+    GtkWidget *button_15 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Forte", GTK_RESPONSE_OK);
+
+    // Conectar os sinais dos botões aos handlers correspondentes
+    g_signal_connect(button_5, "clicked", G_CALLBACK(on_intensity_selected), GINT_TO_POINTER(5));
+    g_signal_connect(button_10, "clicked", G_CALLBACK(on_intensity_selected), GINT_TO_POINTER(10));
+    g_signal_connect(button_15, "clicked", G_CALLBACK(on_intensity_selected), GINT_TO_POINTER(15));
+
+    // Mostrar todos os widgets
+    gtk_widget_show_all(dialog);
+
+    // Aguardar até que o usuário escolha uma opção
+    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    // O loop principal de eventos do GTK será bloqueado até que o diálogo seja fechado
+    // Aqui você pode adicionar qualquer lógica adicional baseada na escolha do usuário, se necessário
+
+    // Uma vez que o usuário escolheu uma opção e o diálogo foi fechado, você pode destruí-lo
+    gtk_widget_destroy(dialog);
+}
+
+void show_blur_intensity_dialog_gray(GtkWidget *parent, ImageGray *imgray, ImageHistoryGray *history) {
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Selecione a intensidade do Blur",
+                                                    GTK_WINDOW(parent),
+                                                    GTK_DIALOG_MODAL,
+                                                    "Cancelar",
+                                                    GTK_RESPONSE_CANCEL,
+                                                    NULL);
+
+    GtkWidget *button_5 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Fraco", GTK_RESPONSE_OK);
+    GtkWidget *button_10 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Médio", GTK_RESPONSE_OK);
+    GtkWidget *button_15 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Forte", GTK_RESPONSE_OK);
+
+    g_signal_connect(button_5, "clicked", G_CALLBACK(on_intensity_selected_gray), GINT_TO_POINTER(5));
+    g_signal_connect(button_10, "clicked", G_CALLBACK(on_intensity_selected_gray), GINT_TO_POINTER(10));
+    g_signal_connect(button_15, "clicked", G_CALLBACK(on_intensity_selected_gray), GINT_TO_POINTER(15));
+
+    gtk_widget_show_all(dialog);
+
+    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (result == GTK_RESPONSE_OK) {
+        gpointer data = g_object_get_data(G_OBJECT(dialog), "intensity");
+        if (data != NULL) {
+            int intensidade = GPOINTER_TO_INT(data);
+            aplicar_blur_gray(imgray, intensidade); // Aplica o blur
+        }
+    }
+
+    gtk_widget_destroy(dialog);
+}
+
+
+// Função de callback para tratar a seleção de intensidade
+void on_intensity_selected(GtkWidget *widget, gpointer data) {
+    int intensidade = GPOINTER_TO_INT(data);
+    // Aqui você pode aplicar o blur com a intensidade selecionada
+    aplicar_blur_rgb(&imrgb, intensidade); // Verifique se imrgb é um ponteiro ImageRGB *
+    gtk_widget_destroy(GTK_WIDGET(gtk_widget_get_parent(widget)));
+}
+
+void on_intensity_selected_gray(GtkWidget *widget, gpointer data) {
+    GtkWidget *dialog = gtk_widget_get_toplevel(widget);
+    g_object_set_data(G_OBJECT(dialog), "intensity", data);
+    gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
 }
 
 void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
 {
-    // Define os nomes dos arquivos de entrada e saída
-    // Defines the input and output file names
     const char *txt_filename = "utils/input_imagem_final.txt";
     const char *output_filename = "utils/imagem_final.png";
 
-    // Aplica um efeito baseado no valor de 'efeito'
-    // Applies an effect based on the value of 'efeito'
     switch (efeito)
     {
     case 1:
-        // Atualiza o status e aplica o efeito de blur na imagem RGB
-        // Updates status and applies blur effect to RGB image
         update_status("Blur RGB aplicado com sucesso");
-        aplicar_blur_rgb(imrgb);
+        show_blur_intensity_dialog(GTK_WIDGET(window), imrgb, history);
+
         // Adiciona a imagem modificada ao histórico
         // Adds the modified image to history
         add_image_to_history_rgb(history, imrgb);
@@ -310,8 +387,9 @@ void aplicar_efeito_rgb(ImageRGB *imrgb, int efeito, ImageHistory *history)
 
     // Abre a imagem resultante para visualização
     // Opens the resulting image for viewing
-    abrir_imagem("image_rgb.png");
+    abrir_imagem("out_image.png");
 }
+
 
 void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *history)
 {
@@ -328,7 +406,7 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
         // Atualiza o status e aplica o efeito de blur na imagem em tons de cinza
         // Updates status and applies blur effect to grayscale image
         update_status("Blur Gray aplicado com sucesso");
-        aplicar_blur_gray(imgray);
+        show_blur_intensity_dialog_gray(GTK_WIDGET(window), imgray, history);
         // Adiciona a imagem modificada ao histórico
         // Adds the modified image to history
         add_image_to_history_gray(history, imgray);
@@ -402,7 +480,7 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
     
     // Abre a imagem resultante para visualização
     // Opens the resulting image for viewing
-    abrir_imagem("image_rgb.png");
+    abrir_imagem("out_image.png");
 
 }
 
@@ -423,7 +501,7 @@ void chamar_python(const char *script, const char *func, const char *input_path,
 
 // Função para aplicar efeito de blur em uma imagem RGB
 // Function to apply blur effect on an RGB image
-void aplicar_blur_rgb(ImageRGB *imrgb)
+void aplicar_blur_rgb(ImageRGB *imrgb, int intensidade)
 {
     ImageRGB blur_rgb;
     // Define as dimensões da imagem de blur
@@ -436,7 +514,7 @@ void aplicar_blur_rgb(ImageRGB *imrgb)
 
     // Aplica o filtro de mediana para criar o efeito de blur
     // Applies the median filter to create the blur effect
-    blur_rgb = *median_blur_rgb(imrgb, 15);
+    blur_rgb = *median_blur_rgb(imrgb, intensidade);
 
     // Atualiza a imagem original com a imagem de blur
     // Updates the original image with the blur image
@@ -578,7 +656,7 @@ void aplicar_clahe_gray(ImageGray *imgray)
 
 // Função para aplicar blur em uma imagem em escala de cinza
 // Function to apply blur effect on a grayscale image
-void aplicar_blur_gray(ImageGray *imgray)
+void aplicar_blur_gray(ImageGray *imgray, int intensidade)
 {
     ImageGray blur_gray;
     // Define as dimensões da imagem de blur
@@ -591,7 +669,7 @@ void aplicar_blur_gray(ImageGray *imgray)
 
     // Aplica o filtro de mediana para criar o efeito de blur
     // Applies the median filter to create the blur effect
-    blur_gray = *median_blur_gray(imgray, 15);
+    blur_gray = *median_blur_gray(imgray, intensidade);
 
     // Atualiza a imagem original com a imagem de blur
     // Updates the original image with the blur image
@@ -698,7 +776,7 @@ void on_convert_to_gray(GtkWidget *widget, gpointer data)
 
     // Abre a imagem RGB
     // Opens the RGB image
-    abrir_imagem("image_rgb.png");
+    abrir_imagem("out_image.png");
 }
 
 // Função para aplicar efeitos em uma imagem em escala de cinza
