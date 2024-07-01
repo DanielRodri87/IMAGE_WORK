@@ -258,6 +258,7 @@ void show_blur_intensity_dialog(GtkWidget *parent, gpointer imrgb, gpointer hist
 
 void show_blur_intensity_dialog_gray(GtkWidget *parent, ImageGray *imgray, ImageHistoryGray *history)
 {
+    // Criando uma janela de diálogo
     GtkWidget *dialog = gtk_dialog_new_with_buttons("Selecione a intensidade do Blur",
                                                     GTK_WINDOW(parent),
                                                     GTK_DIALOG_MODAL,
@@ -265,27 +266,30 @@ void show_blur_intensity_dialog_gray(GtkWidget *parent, ImageGray *imgray, Image
                                                     GTK_RESPONSE_CANCEL,
                                                     NULL);
 
+    // Adicionando botões com os valores de intensidade
     GtkWidget *button_5 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Fraco", GTK_RESPONSE_OK);
     GtkWidget *button_10 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Médio", GTK_RESPONSE_OK);
     GtkWidget *button_15 = gtk_dialog_add_button(GTK_DIALOG(dialog), "Forte", GTK_RESPONSE_OK);
 
+    // Conectar os sinais dos botões aos handlers correspondentes
     g_signal_connect(button_5, "clicked", G_CALLBACK(on_intensity_selected_gray), GINT_TO_POINTER(5));
     g_signal_connect(button_10, "clicked", G_CALLBACK(on_intensity_selected_gray), GINT_TO_POINTER(10));
     g_signal_connect(button_15, "clicked", G_CALLBACK(on_intensity_selected_gray), GINT_TO_POINTER(15));
 
+    // Mostrar todos os widgets
     gtk_widget_show_all(dialog);
 
+    // Aguardar até que o usuário escolha uma opção
     gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    // Se o usuário clicou em "Aplicar"
     if (result == GTK_RESPONSE_OK)
     {
-        gpointer data = g_object_get_data(G_OBJECT(dialog), "intensity");
-        if (data != NULL)
-        {
-            int intensidade = GPOINTER_TO_INT(data);
-            aplicar_blur_gray(imgray, intensidade); // Aplica o blur
-        }
+        int intensidade = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "intensity"));
+        aplicar_blur_gray(imgray, intensidade);
     }
 
+    // Uma vez que o usuário escolheu uma opção e o diálogo foi fechado, você pode destruí-lo
     gtk_widget_destroy(dialog);
 }
 
@@ -405,6 +409,7 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
     // Defines the input and output file names
     const char *txt_filename = "utils/input_imagem_final.txt";
     const char *output_filename = "utils/imagem_final.png";
+    gint dialog_result = GTK_RESPONSE_NONE;
 
     // Aplica um efeito baseado no valor de 'efeito'
     // Applies an effect based on the value of 'efeito'
@@ -415,6 +420,12 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
         // Updates status and applies blur effect to grayscale image
         update_status("Blur Gray aplicado com sucesso");
         show_blur_intensity_dialog_gray(GTK_WIDGET(window), imgray, history);
+
+        if (dialog_result != GTK_RESPONSE_OK)
+        {
+            return;
+        }
+
         // Adiciona a imagem modificada ao histórico
         // Adds the modified image to history
         add_image_to_history_gray(history, imgray);
