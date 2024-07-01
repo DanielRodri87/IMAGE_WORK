@@ -17,7 +17,7 @@ void aplicar_transpose_rgb(ImageRGB *imrgb); // Transpõe a imagem RGB - Transpo
 void aplicar_flip_vertical_rgb(ImageRGB *imrgb); // Inverte a imagem RGB verticalmente - Flips the RGB image vertically
 void aplicar_flip_horizontal_rgb(ImageRGB *imrgb); // Inverte a imagem RGB horizontalmente - Flips the RGB image horizontally
 void aplicar_transpose_gray(ImageGray *imgray); // Transpõe a imagem gray - Transposes the grayscale image
-void aplicar_clahe_gray(ImageGray *imgray); // Aplica o efeito CLAHE na imagem gray - Applies the CLAHE effect to the grayscale image
+void aplicar_clahe_gray(ImageGray *imgray, int intensidade1, int intensidade2); // Aplica o efeito CLAHE na imagem gray - Applies the CLAHE effect to the grayscale image
 void aplicar_blur_gray(ImageGray *imgray, int intensidade); // Aplica o efeito blur na imagem gray - Applies the blur effect to the grayscale image
 void aplicar_flip_vertical_gray(ImageGray *imgray); // Inverte a imagem gray verticalmente - Flips the grayscale image vertically
 void aplicar_flip_horizontal_gray(ImageGray *imgray); // Inverte a imagem gray horizontalmente - Flips the grayscale image horizontally
@@ -45,7 +45,7 @@ void update_status(const char *message); // Atualiza a mensagem de status na int
 void on_intensity_selected(GtkWidget *widget, gpointer data); // Função onde o usuário seleciona a intensidade do efeito de blur - Function where the user selects the intensity of the blur effect
 void on_intensity_selected_gray(GtkWidget *widget, gpointer data); // Função onde o usuário seleciona a intensidade do efeito de blur em tons de cinza - Function where the user selects the intensity of the blur effect in grayscale
 void show_clahe_intensity_dialog(GtkWidget *parent, gpointer imrgb, gpointer history);
-
+void show_clahe_intensity_dialog_gray(GtkWidget *parent, gpointer imgray, gpointer history);
 
 ImageRGB imrgb; // Variável que representa uma imagem RGB - Variable representing an RGB image
 ImageGray imgray; // Variável que representa uma imagem gray - Variable representing a grayscale image
@@ -416,7 +416,7 @@ void aplicar_efeito_gray(ImageGray *imgray, int efeito, ImageHistoryGray *histor
         // Atualiza o status e aplica o efeito CLAHE na imagem em tons de cinza
         // Updates status and applies CLAHE effect to grayscale image
         update_status("CLAHE Gray aplicado com sucesso");
-        aplicar_clahe_gray(imgray);
+        show_clahe_intensity_dialog_gray(GTK_WIDGET(window), imgray, history);
         // Adiciona a imagem modificada ao histórico
         // Adds the modified image to history
         add_image_to_history_gray(history, imgray);
@@ -586,6 +586,70 @@ void show_clahe_intensity_dialog(GtkWidget *parent, gpointer imrgb, gpointer his
     gtk_widget_destroy(dialog);
 }
 
+void show_clahe_intensity_dialog_gray(GtkWidget *parent, gpointer imgray, gpointer history)
+{
+    // Criando uma janela de diálogo
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Selecione as intensidades do CLAHE",
+                                                    GTK_WINDOW(parent),
+                                                    GTK_DIALOG_MODAL,
+                                                    "Cancelar",
+                                                    GTK_RESPONSE_CANCEL,
+                                                    "Aplicar",
+                                                    GTK_RESPONSE_ACCEPT,
+                                                    NULL);
+
+    // Criando containers para os campos de entrada
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget *grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(content_area), grid);
+
+    // Criando rótulos e campos de entrada para as intensidades
+    GtkWidget *label_intensidade1 = gtk_label_new("Intensidade 1:");
+    GtkWidget *entry_intensidade1 = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(entry_intensidade1), "256"); 
+
+    GtkWidget *label_intensidade2 = gtk_label_new("Intensidade 2:");
+    GtkWidget *entry_intensidade2 = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(entry_intensidade2), "40"); 
+
+    // Adicionando os widgets à grade
+    gtk_grid_attach(GTK_GRID(grid), label_intensidade1, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), entry_intensidade1, 1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), label_intensidade2, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), entry_intensidade2, 1, 1, 1, 1);
+
+    // Mostrar todos os widgets
+    gtk_widget_show_all(dialog);
+
+    // Aguardar até que o usuário escolha uma opção
+    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    // Se o usuário clicou em "Aplicar"
+    if (result == GTK_RESPONSE_ACCEPT)
+    {
+        int intensidade1 = atoi(gtk_entry_get_text(GTK_ENTRY(entry_intensidade1)));
+        int intensidade2 = atoi(gtk_entry_get_text(GTK_ENTRY(entry_intensidade2)));
+
+        // Verificar se os valores estão dentro do intervalo permitido
+        if (intensidade1 < 2 || intensidade2 < 2 && intensidade1 > 256 || intensidade2 > 256)
+        {
+            GtkWidget *error_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog),
+                                                             GTK_DIALOG_MODAL,
+                                                             GTK_MESSAGE_ERROR,
+                                                             GTK_BUTTONS_OK,
+                                                             "Valor inválido para intensidade. Deve estar entre 2 e 256.");
+            gtk_dialog_run(GTK_DIALOG(error_dialog));
+            gtk_widget_destroy(error_dialog);
+        }
+        else
+        {
+            aplicar_clahe_gray((ImageGray *)imgray, intensidade1, intensidade2); 
+        }
+
+    }
+
+    gtk_widget_destroy(dialog);
+}
 
 
 // Função para aplicar CLAHE em uma imagem RGB
@@ -701,7 +765,7 @@ void aplicar_transpose_gray(ImageGray *imgray)
 
 // Função para aplicar CLAHE em uma imagem em escala de cinza
 // Function to apply CLAHE on a grayscale image
-void aplicar_clahe_gray(ImageGray *imgray)
+void aplicar_clahe_gray(ImageGray *imgray, int intensidade1, int intensidade2)
 {
     ImageGray clahe_gray_saida;
     // Define as dimensões da imagem CLAHE
@@ -714,7 +778,7 @@ void aplicar_clahe_gray(ImageGray *imgray)
 
     // Aplica o algoritmo CLAHE para melhorar o contraste
     // Applies the CLAHE algorithm to enhance contrast
-    clahe_gray_saida = *clahe_gray(imgray, 256, 90);
+    clahe_gray_saida = *clahe_gray(imgray, intensidade1, intensidade2);
 
     // Atualiza a imagem original com a imagem CLAHE
     // Updates the original image with the CLAHE image
