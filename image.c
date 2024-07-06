@@ -765,6 +765,8 @@ void transpose_gray(const ImageGray *image, ImageGray *transposed_image)
     }
 }
 
+
+
 void transpose_rgb(const ImageRGB *image, ImageRGB *transposed_image)
 {
     if (image == NULL || image->pixels == NULL || transposed_image == NULL) {
@@ -790,6 +792,14 @@ void transpose_rgb(const ImageRGB *image, ImageRGB *transposed_image)
 }
 
 
+
+ImageHistoryNode *retornaInicioRGB(ImageHistoryNode *l){
+    if (!l) return NULL;
+    while(l->next != NULL)
+        l = l->next;
+    return l;
+}
+
 // Função add_image_to_history_rgb adiciona uma imagem RGB ao histórico de imagens, ou seja a cada alteração feita na imagem, uma cópia da imagem é salva no histórico.
 // The add_image_to_history_rgb function adds an RGB image to the image history, that is, each change made to the image, a copy of the image is saved in the history.
 void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image)
@@ -798,6 +808,7 @@ void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image)
     // Allocates memory for a new node in the image history
     ImageHistoryNode *new_node = (ImageHistoryNode *)malloc(sizeof(ImageHistoryNode));
 
+    history->current = retornaInicioRGB(history->current);
     // Cria uma nova imagem RGB com as mesmas dimensões da imagem fornecida
     // Creates a new RGB image with the same dimensions as the provided image
     new_node->image = create_image_rgb(image->dim.largura, image->dim.altura);

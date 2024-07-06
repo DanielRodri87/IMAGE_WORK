@@ -59,6 +59,9 @@ GtkWidget *button_sort_effect_gray;   // Botão que sorteia e aplica um efeito a
 GtkWidget *button_convert_to_gray;    // Botão que converte a imagem RGB para uma imagem gray - Button that converts the RGB image to a grayscale image
 GtkWidget *label_status;              // Rótulo usado para exibir mensagens de status - Label used to display status messages
 GtkWidget *window;
+GtkWidget *button_exit;
+GtkWidget *label_status;
+GtkWidget *buttons[6];
 
 int main(int argc, char *argv[])
 {
