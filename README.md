@@ -69,4 +69,5 @@ O objetivo deste projeto é desenvolver uma solução para manipulação de imag
 **Integrantes:**
 - [![Daniel Rodrigues](https://img.shields.io/badge/DanielRodri87-GitHub-blueviolet)](https://github.com/DanielRodri87)
 - [![Rita de Cássia](https://img.shields.io/badge/ritar0drigues-GitHub-blueviolet)](https://github.com/ritar0drigues)
-- [Pedro]
+- [![Pedro Herique Carvalho](https://img.shields.io/badge/callmepeh-GitHub-blueviolet)](https://github.com/callmepeh)
+
