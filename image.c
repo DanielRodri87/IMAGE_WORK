@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gtk/gtk.h>
 
 // Essa função é responsável por ler a imagem em escala de cinza, ou seja, a imagem que contém apenas um canal de cor.
 // This function is responsible for reading the grayscale image, that is, the image that contains only one color channel.
@@ -800,6 +801,13 @@ ImageHistoryNode *retornaInicioRGB(ImageHistoryNode *l){
     return l;
 }
 
+ImageHistoryNodeGray *retornaInicioGRAY(ImageHistoryNodeGray *l){
+    if (!l) return NULL;
+    while(l->next != NULL)
+        l = l->next;
+    return l;
+}
+
 // Função add_image_to_history_rgb adiciona uma imagem RGB ao histórico de imagens, ou seja a cada alteração feita na imagem, uma cópia da imagem é salva no histórico.
 // The add_image_to_history_rgb function adds an RGB image to the image history, that is, each change made to the image, a copy of the image is saved in the history.
 void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image)
@@ -841,6 +849,9 @@ void add_image_to_history_rgb(ImageHistory *history, ImageRGB *image)
 void add_image_to_history_gray(ImageHistoryGray *history, ImageGray *image)
 {
     ImageHistoryNodeGray *new_node = (ImageHistoryNodeGray *)malloc(sizeof(ImageHistoryNodeGray));
+
+    history->current = retornaInicioGRAY(history->current);
+
     new_node->image = create_image_gray(image->dim.largura, image->dim.altura);
     *new_node->image = *image;
     new_node->next = NULL;
@@ -859,7 +870,14 @@ void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb)
     // Se o nó atual do histórico for NULL ou o nó anterior for NULL, não há nada para desfazer
     // If the current node in the history is NULL or the previous node is NULL, there is nothing to undo
     if (history->current == NULL || history->current->prev == NULL) {
-        printf("Nada para desfazer.\n");
+        GtkWidget *dialog;
+        dialog = gtk_message_dialog_new(NULL, 
+                                        GTK_DIALOG_DESTROY_WITH_PARENT, 
+                                        GTK_MESSAGE_ERROR, 
+                                        GTK_BUTTONS_CLOSE, 
+                                        "Nada para desfazer.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         return;
     }
     // Caso contrário, o nó atual é atualizado para o nó anterior e a imagem é copiada para a imagem fornecida
@@ -873,7 +891,14 @@ void desfazer_rgb(ImageHistory *history, ImageRGB *imrgb)
 void refazer_rgb(ImageHistory *history, ImageRGB *imrgb)
 {
     if (history->current == NULL || history->current->next == NULL) {
-        printf("Nada para refazer.\n");
+        GtkWidget *dialog;
+        dialog = gtk_message_dialog_new(NULL, 
+                                        GTK_DIALOG_DESTROY_WITH_PARENT, 
+                                        GTK_MESSAGE_ERROR, 
+                                        GTK_BUTTONS_CLOSE, 
+                                        "Nada para refazer.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         return;
     }
     // Caso contrário, o nó atual é atualizado para o próximo nó e a imagem é copiada para a imagem fornecida
@@ -887,7 +912,14 @@ void refazer_rgb(ImageHistory *history, ImageRGB *imrgb)
 void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray)
 {
     if (history->current == NULL || history->current->prev == NULL) {
-        printf("Nada para desfazer.\n");
+        GtkWidget *dialog;
+        dialog = gtk_message_dialog_new(NULL, 
+                                        GTK_DIALOG_DESTROY_WITH_PARENT, 
+                                        GTK_MESSAGE_ERROR, 
+                                        GTK_BUTTONS_CLOSE, 
+                                        "Nada para desfazer.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         return;
     }
     history->current = history->current->prev;
@@ -897,7 +929,14 @@ void desfazer_gray(ImageHistoryGray *history, ImageGray *imgray)
 void refazer_gray(ImageHistoryGray *history, ImageGray *imgray)
 {
     if (history->current == NULL || history->current->next == NULL) {
-        printf("Nada para refazer.\n");
+        GtkWidget *dialog;
+        dialog = gtk_message_dialog_new(NULL, 
+                                        GTK_DIALOG_DESTROY_WITH_PARENT, 
+                                        GTK_MESSAGE_ERROR, 
+                                        GTK_BUTTONS_CLOSE, 
+                                        "Nada para refazer.");
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         return;
     }
     history->current = history->current->next;
