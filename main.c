@@ -1,3 +1,8 @@
+// TEAM:
+// - Daniel Rodrigues de Sousa
+// - Rita de Cássia Rodrigues da Silva
+// - Pedro Henrique
+
 // Bibliotecas necessárias - Required libraries:
 #include <stdio.h>
 #include <stdlib.h>
@@ -580,7 +585,7 @@ void show_clahe_intensity_dialog(GtkWidget *parent, gpointer imrgb, gpointer his
         int intensidade2 = atoi(gtk_entry_get_text(GTK_ENTRY(entry_intensidade2)));
 
         // Verificar se os valores estão dentro do intervalo permitido
-        if (intensidade1 < 2 || intensidade2 < 2 && intensidade1 > 256 || intensidade2 > 256)
+        if ((intensidade1 < 2 || intensidade1 > 256) || (intensidade2 < 2 || intensidade2 > 256))
         {
             GtkWidget *error_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog),
                                                              GTK_DIALOG_MODAL,
@@ -644,7 +649,7 @@ void show_clahe_intensity_dialog_gray(GtkWidget *parent, gpointer imgray, gpoint
         int intensidade2 = atoi(gtk_entry_get_text(GTK_ENTRY(entry_intensidade2)));
 
         // Verificar se os valores estão dentro do intervalo permitido
-        if (intensidade1 < 2 || intensidade2 < 2 && intensidade1 > 256 || intensidade2 > 256)
+        if ((intensidade1 < 2 || intensidade1 > 256) || (intensidade2 < 2 || intensidade2 > 256))
         {
             GtkWidget *error_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog),
                                                              GTK_DIALOG_MODAL,
@@ -662,6 +667,7 @@ void show_clahe_intensity_dialog_gray(GtkWidget *parent, gpointer imgray, gpoint
 
     gtk_widget_destroy(dialog);
 }
+
 
 // Função para aplicar CLAHE em uma imagem RGB
 // Function to apply CLAHE on an RGB image
