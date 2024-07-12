@@ -15,6 +15,12 @@ pip install -r requirements.txt
 ```bash
 sudo apt install libgtk-3-dev
 ```
+
+4. Se você não tiver nenhum operador de imagens
+```bash
+sudo apt-get install eog
+```
+
 **Comando para rodar:**
 1. Criando Executável
 ```bash
